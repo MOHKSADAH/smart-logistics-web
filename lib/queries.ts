@@ -190,6 +190,94 @@ export async function getSlotUtilization(date: string) {
   return (slots as TimeSlot[]) || [];
 }
 
+// Get available slots for rescheduling
+export async function getAvailableSlots(limit: number = 10) {
+  const supabase = getServerSupabaseClient();
+  const now = new Date().toISOString();
+
+  const { data: slots } = await supabase
+    .from("time_slots")
+    .select("*")
+    .gte("date", now.split("T")[0])
+    .neq("status", "FULL")
+    .order("date", { ascending: true })
+    .order("start_time", { ascending: true })
+    .limit(limit);
+
+  return (slots as TimeSlot[]) || [];
+}
+
+// Get all drivers for form dropdowns
+export async function getAllDrivers() {
+  const supabase = getServerSupabaseClient();
+
+  const { data: drivers } = await supabase
+    .from("drivers")
+    .select("id, name, phone, vehicle_plate, vehicle_type")
+    .order("name", { ascending: true });
+
+  return drivers || [];
+}
+
+// Get drivers with permit counts and filters
+export async function getDriversWithStats(filters?: {
+  search?: string;
+  vehicleType?: string;
+}) {
+  const supabase = getServerSupabaseClient();
+
+  let query = supabase
+    .from("drivers")
+    .select("*")
+    .order("name", { ascending: true });
+
+  // Apply search filter
+  if (filters?.search) {
+    query = query.or(
+      `name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%,vehicle_plate.ilike.%${filters.search}%`
+    );
+  }
+
+  // Apply vehicle type filter
+  if (filters?.vehicleType) {
+    query = query.eq("vehicle_type", filters.vehicleType);
+  }
+
+  const { data: drivers } = await query;
+
+  if (!drivers) return [];
+
+  // Get permit counts for each driver
+  const driverIds = drivers.map((d) => d.id);
+  const { data: permits } = await supabase
+    .from("permits")
+    .select("driver_id, status")
+    .in("driver_id", driverIds);
+
+  // Count permits by driver and status
+  const permitCounts: Record<
+    string,
+    { total: number; active: number; halted: number }
+  > = {};
+  permits?.forEach((permit) => {
+    if (!permitCounts[permit.driver_id]) {
+      permitCounts[permit.driver_id] = { total: 0, active: 0, halted: 0 };
+    }
+    permitCounts[permit.driver_id].total++;
+    if (permit.status === "APPROVED") {
+      permitCounts[permit.driver_id].active++;
+    } else if (permit.status === "HALTED") {
+      permitCounts[permit.driver_id].halted++;
+    }
+  });
+
+  // Enrich drivers with permit counts
+  return drivers.map((driver) => ({
+    ...driver,
+    permitCounts: permitCounts[driver.id] || { total: 0, active: 0, halted: 0 },
+  }));
+}
+
 // Get upcoming vessel schedules
 export async function getVesselSchedules() {
   const supabase = getServerSupabaseClient();

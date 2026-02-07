@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
 import { AnalyticsCharts } from "@/components/analytics-charts";
 import { getAnalyticsData } from "@/lib/queries";
+import { getTranslations } from 'next-intl/server';
 
 export default async function AnalyticsPage() {
+  const t = await getTranslations('analytics');
   const analytics = await getAnalyticsData();
 
   const totalPermits = Object.values(analytics.permitsByPriority).reduce(
@@ -14,8 +16,8 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Analytics"
-        description="Permit trends and traffic congestion patterns"
+        title={t('title')}
+        description={t('description')}
       />
 
       {/* Charts */}

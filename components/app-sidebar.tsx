@@ -1,8 +1,9 @@
 "use client";
 
-import { LayoutDashboard, Activity, FileCheck, Ship, BarChart3, Truck } from "lucide-react";
+import { LayoutDashboard, Activity, FileCheck, Users, Ship, BarChart3, Bell } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from 'next-intl';
 
 import {
   Sidebar,
@@ -14,45 +15,62 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-const navItems = [
-  {
-    title: "Overview",
-    href: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Traffic",
-    href: "/traffic",
-    icon: Activity,
-  },
-  {
-    title: "Permits",
-    href: "/permits",
-    icon: FileCheck,
-  },
-  {
-    title: "Vessels",
-    href: "/vessels",
-    icon: Ship,
-  },
-  {
-    title: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-  },
-];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
+  const locale = useLocale();
+
+  const navItems = [
+    {
+      title: t('overview'),
+      href: `/${locale}`,
+      icon: LayoutDashboard,
+    },
+    {
+      title: t('traffic'),
+      href: `/${locale}/traffic`,
+      icon: Activity,
+    },
+    {
+      title: t('permits'),
+      href: `/${locale}/permits`,
+      icon: FileCheck,
+    },
+    {
+      title: t('drivers'),
+      href: `/${locale}/drivers`,
+      icon: Users,
+    },
+    {
+      title: t('vessels'),
+      href: `/${locale}/vessels`,
+      icon: Ship,
+    },
+    {
+      title: t('analytics'),
+      href: `/${locale}/analytics`,
+      icon: BarChart3,
+    },
+    {
+      title: t('notifications'),
+      href: `/${locale}/notifications`,
+      icon: Bell,
+    },
+  ];
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b px-6 py-4">
-        <div className="flex items-center gap-2">
-          <Truck className="h-6 w-6" />
-          <span className="font-semibold">Smart Logistics</span>
+      <SidebarHeader className="border-b">
+        <div className="flex h-16 items-center justify-center px-2 group-data-[collapsible=icon]:px-2">
+          <div className="flex items-center justify-between w-full group-data-[collapsible=icon]:justify-center">
+            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
+              {t('title')}
+            </span>
+            <SidebarTrigger />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -64,6 +82,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.href}
+                  tooltip={item.title}
                 >
                   <Link href={item.href}>
                     <item.icon />
