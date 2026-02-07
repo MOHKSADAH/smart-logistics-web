@@ -1,4 +1,5 @@
 import { format, formatDistanceToNow } from "date-fns";
+import { getTranslations } from 'next-intl/server';
 import {
   Table,
   TableBody,
@@ -11,7 +12,16 @@ import { PageHeader } from "@/components/page-header";
 import { PriorityBadge } from "@/components/priority-badge";
 import { PermitStatusBadge } from "@/components/permit-status-badge";
 import { PermitFilters } from "@/components/permit-filters";
-import { getAllPermits } from "@/lib/queries";
+import { PermitActions } from "@/components/permit-actions";
+import { CreatePermitDialog } from "@/components/create-permit-dialog";
+import { PermitDetailDialog } from "@/components/permit-detail-dialog";
+import { RealtimeListener } from "@/components/realtime-listener";
+import {
+  getAllPermits,
+  getAvailableSlots,
+  getAllDrivers,
+  getVesselSchedules,
+} from "@/lib/queries";
 
 export default async function PermitsPage({
   searchParams,
@@ -19,38 +29,57 @@ export default async function PermitsPage({
   searchParams: Promise<{ status?: string; priority?: string }>;
 }) {
   const params = await searchParams;
-  const permits = await getAllPermits({
-    status: params.status,
-    priority: params.priority,
-  });
+  const t = await getTranslations('permits');
+  const tCommon = await getTranslations('common');
+  const [permits, availableSlots, drivers, vessels] = await Promise.all([
+    getAllPermits({
+      status: params.status,
+      priority: params.priority,
+    }),
+    getAvailableSlots(15),
+    getAllDrivers(),
+    getVesselSchedules(),
+  ]);
 
   return (
     <div className="space-y-6">
+      {/* Real-time updates */}
+      <RealtimeListener table="permits" />
+      <RealtimeListener table="time_slots" />
+
       <PageHeader
-        title="Permit Management"
-        description="View and manage all truck permits"
+        title={t('title')}
+        description={t('description')}
       />
 
-      <PermitFilters />
+      <div className="flex items-center justify-between gap-4">
+        <PermitFilters />
+        <CreatePermitDialog
+          drivers={drivers}
+          availableSlots={availableSlots}
+          vessels={vessels}
+        />
+      </div>
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Permit ID</TableHead>
-              <TableHead>Driver</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Cargo Type</TableHead>
-              <TableHead>Time Slot</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead>{t('permitId')}</TableHead>
+              <TableHead>{t('driver')}</TableHead>
+              <TableHead>{t('priority')}</TableHead>
+              <TableHead>{t('status')}</TableHead>
+              <TableHead>{t('cargoType')}</TableHead>
+              <TableHead>{t('timeSlot')}</TableHead>
+              <TableHead>{t('created')}</TableHead>
+              <TableHead className="text-end">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {permits.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
-                  No permits found
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
+                  {t('noPermits')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -62,7 +91,7 @@ export default async function PermitsPage({
                   <TableCell>
                     <div>
                       <div className="font-medium">
-                        {permit.driver?.name || "N/A"}
+                        {permit.driver?.name || "{tCommon('na')}"}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {permit.driver?.vehicle_plate || ""}
@@ -88,13 +117,26 @@ export default async function PermitsPage({
                         </div>
                       </div>
                     ) : (
-                      "N/A"
+                      "{tCommon('na')}"
                     )}
                   </TableCell>
                   <TableCell className="text-xs">
                     {formatDistanceToNow(new Date(permit.created_at), {
                       addSuffix: true,
                     })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <PermitDetailDialog permit={permit} />
+                      <PermitActions
+                        permitId={permit.id}
+                        currentStatus={permit.status}
+                        priority={permit.priority}
+                        availableSlots={availableSlots}
+                        currentSlotDate={permit.slot?.date}
+                        currentSlotTime={`${permit.slot?.start_time?.slice(0, 5)} - ${permit.slot?.end_time?.slice(0, 5)}`}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

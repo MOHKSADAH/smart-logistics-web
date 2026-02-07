@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
 import {
   Table,
@@ -15,6 +16,7 @@ import { getVesselSchedules, getPriorityRules } from "@/lib/queries";
 export default async function VesselsPage() {
   const vessels = await getVesselSchedules();
   const priorityRules = await getPriorityRules();
+  const t = await getTranslations("vessels");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -33,22 +35,19 @@ export default async function VesselsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Vessel Schedule"
-        description="Upcoming ship arrivals and estimated truck volumes"
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Vessel Name</TableHead>
-              <TableHead>Arrival Date</TableHead>
-              <TableHead>Arrival Time</TableHead>
+              <TableHead>{t("vesselName")}</TableHead>
+              <TableHead>{t("arrivalDate")}</TableHead>
+              <TableHead>Time</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Estimated Trucks</TableHead>
-              <TableHead>Actual Trucks</TableHead>
-              <TableHead>Cargo Priority</TableHead>
+              <TableHead>{t("expectedTrucks")}</TableHead>
+              <TableHead>Actual</TableHead>
+              <TableHead>{t("cargoType")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -58,7 +57,7 @@ export default async function VesselsPage() {
                   colSpan={7}
                   className="text-center text-muted-foreground"
                 >
-                  No upcoming vessels
+                  {t("noVessels")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -98,6 +97,7 @@ export default async function VesselsPage() {
                         priority={
                           vessel.cargo_priority as
                             | "EMERGENCY"
+                            | "TIME_SENSITIVE"
                             | "ESSENTIAL"
                             | "NORMAL"
                             | "LOW"

@@ -1,10 +1,15 @@
+'use client';
+
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from 'next-intl';
 
 interface TrafficStatusBadgeProps {
   status: "NORMAL" | "MODERATE" | "CONGESTED";
 }
 
 export function TrafficStatusBadge({ status }: TrafficStatusBadgeProps) {
+  const t = useTranslations('status');
+
   const variants = {
     NORMAL: "bg-green-100 text-green-800 hover:bg-green-100",
     MODERATE: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
@@ -13,7 +18,7 @@ export function TrafficStatusBadge({ status }: TrafficStatusBadgeProps) {
 
   return (
     <Badge className={variants[status]}>
-      {status}
+      {t(status.toLowerCase())}
     </Badge>
   );
 }

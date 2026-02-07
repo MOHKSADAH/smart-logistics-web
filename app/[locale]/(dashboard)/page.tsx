@@ -1,5 +1,6 @@
 import { FileCheck, XCircle, ShieldCheck, Calendar } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { StatCard } from "@/components/stat-card";
 import { TrafficStatusBadge } from "@/components/traffic-status-badge";
+import { RealtimeListener } from "@/components/realtime-listener";
 import {
   getDashboardStats,
   getTrafficData,
@@ -18,6 +20,9 @@ import {
 } from "@/lib/queries";
 
 export default async function DashboardPage() {
+  const t = await getTranslations('dashboard');
+  const tCommon = await getTranslations('common');
+
   const [stats, traffic, vessels] = await Promise.all([
     getDashboardStats(),
     getTrafficData(),
@@ -29,6 +34,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Real-time updates */}
+      <RealtimeListener table="traffic_updates" />
+      <RealtimeListener table="permits" />
+
       {/* Traffic Status Banner */}
       <Card
         className={
@@ -42,11 +51,11 @@ export default async function DashboardPage() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Current Traffic Status</h2>
+              <h2 className="text-2xl font-bold">{t('trafficStatus')}</h2>
               <div className="flex items-center gap-4 mt-2">
                 <TrafficStatusBadge status={stats.currentTrafficStatus} />
                 <span className="text-sm text-muted-foreground">
-                  {stats.vehicleCount} vehicles · {stats.truckCount} trucks
+                  {stats.vehicleCount} {tCommon('vehicles')} · {stats.truckCount} {tCommon('trucks')}
                 </span>
                 {traffic.current && (
                   <span className="text-xs text-muted-foreground">
@@ -65,30 +74,30 @@ export default async function DashboardPage() {
       {/* Stat Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Permits Today"
+          title={t('totalPermits')}
           value={stats.totalPermits}
           icon={FileCheck}
-          description="Active bookings"
+          description={t('activeBookings')}
         />
         <StatCard
-          title="Approved"
+          title={t('approved')}
           value={stats.approvedCount}
           icon={ShieldCheck}
-          description={`${stats.protectedCount} priority protected`}
+          description={t('protectedCount', { count: stats.protectedCount })}
           className="border-green-200"
         />
         <StatCard
-          title="Halted"
+          title={t('halted')}
           value={stats.haltedCount}
           icon={XCircle}
-          description="Due to congestion"
+          description={t('dueToCongestion')}
           className="border-red-200"
         />
         <StatCard
-          title="Slot Utilization"
+          title={t('slotUtilization')}
           value={`${stats.availableSlotsToday}/${stats.totalSlotsToday}`}
           icon={Calendar}
-          description="Available slots"
+          description={t('availableSlots')}
         />
       </div>
 
@@ -98,17 +107,17 @@ export default async function DashboardPage() {
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Traffic Updates</CardTitle>
+              <CardTitle>{t('recentTraffic')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Camera</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Vehicles</TableHead>
-                    <TableHead>Trucks</TableHead>
+                    <TableHead>{t('time')}</TableHead>
+                    <TableHead>{t('camera')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
+                    <TableHead>{tCommon('vehicles')}</TableHead>
+                    <TableHead>{tCommon('trucks')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -137,7 +146,7 @@ export default async function DashboardPage() {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Vessels</CardTitle>
+              <CardTitle>{t('upcomingVessels')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

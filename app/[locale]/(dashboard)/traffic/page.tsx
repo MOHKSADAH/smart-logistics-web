@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { format, formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,17 +12,23 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { TrafficStatusBadge } from "@/components/traffic-status-badge";
 import { TrafficChart } from "@/components/traffic-chart";
+import { RealtimeListener } from "@/components/realtime-listener";
 import { getTrafficData } from "@/lib/queries";
 
 export default async function TrafficPage() {
+  const t = await getTranslations('traffic');
+  const tCommon = await getTranslations('common');
   const traffic = await getTrafficData();
   const recentUpdates = traffic.history.slice(-20).reverse();
 
   return (
     <div className="space-y-6">
+      {/* Real-time updates */}
+      <RealtimeListener table="traffic_updates" />
+
       <PageHeader
-        title="Traffic Monitoring"
-        description="Real-time traffic status and historical data"
+        title={t('title')}
+        description={t('description')}
       />
 
       {/* Current Status Banner */}
@@ -37,18 +44,18 @@ export default async function TrafficPage() {
         >
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Current Traffic Status</h2>
+              <h2 className="text-2xl font-bold">{t('currentStatus')}</h2>
               <div className="flex items-center gap-6">
                 <TrafficStatusBadge status={traffic.current.status} />
                 <div className="flex gap-6 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Vehicles:</span>{" "}
+                    <span className="text-muted-foreground">{t('vehicleCount')}:</span>{" "}
                     <span className="font-semibold">
                       {traffic.current.vehicle_count}
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Trucks:</span>{" "}
+                    <span className="text-muted-foreground">{t('truckCount')}:</span>{" "}
                     <span className="font-semibold">
                       {traffic.current.truck_count}
                     </span>
@@ -78,16 +85,16 @@ export default async function TrafficPage() {
       {/* Recent Updates Table */}
       <Card>
         <CardContent className="pt-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Updates</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('historicalTrends')}</h3>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Timestamp</TableHead>
                 <TableHead>Camera ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Vehicle Count</TableHead>
-                <TableHead>Truck Count</TableHead>
-                <TableHead>Recommendation</TableHead>
+                <TableHead>{t('currentStatus')}</TableHead>
+                <TableHead>{t('vehicleCount')}</TableHead>
+                <TableHead>{t('truckCount')}</TableHead>
+                <TableHead>{t('recommendation')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
