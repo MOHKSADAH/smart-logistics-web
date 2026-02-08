@@ -56,8 +56,7 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
   // Helper to get translated cargo type
   const getCargoTypeLabel = (cargoType: string) => {
-    const key = cargoType as keyof IntlMessages['cargoTypes'];
-    return tCargo(key) || cargoType;
+    return tCargo(cargoType as any) || cargoType;
   };
 
   return (
