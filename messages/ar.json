@@ -171,7 +171,8 @@
     "driver": "سائق",
     "drivers": "سائقين",
     "totalPermits": "إجمالي التصاريح",
-    "search": "بحث"
+    "search": "بحث",
+    "status": "الحالة"
   },
   "permitDetail": {
     "title": "تفاصيل التصريح",
