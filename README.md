@@ -1,4 +1,4 @@
-# Smart Logistics & Truck Management System
+# PORTA - Smart Logistics & Truck Management System
 
 Team 1: Admin Dashboard & Backend
 Project: Dammam Urban Development Challenge 2025 - Challenge #2
@@ -29,14 +29,15 @@ Team 3 (AI/Computer Vision): Sends traffic data to our backend
 
 ## Core Innovation: Four-Tier Priority System
 
-| Priority  | Cargo Type                           | Max Delay | Can Be Halted |
-|-----------|--------------------------------------|-----------|---------------|
-| EMERGENCY | Medical supplies, vaccines, perishable food | 0 min | No |
-| ESSENTIAL | E-commerce, JIT manufacturing       | 2 hours   | No |
-| NORMAL    | Standard containers                 | 8 hours   | Yes |
-| LOW       | Bulk materials                      | 24 hours  | Yes |
+| Priority  | Cargo Type                                  | Max Delay | Can Be Halted |
+| --------- | ------------------------------------------- | --------- | ------------- |
+| EMERGENCY | Medical supplies, vaccines, perishable food | 0 min     | No            |
+| ESSENTIAL | E-commerce, JIT manufacturing               | 2 hours   | No            |
+| NORMAL    | Standard containers                         | 8 hours   | Yes           |
+| LOW       | Bulk materials                              | 24 hours  | Yes           |
 
 Traffic Response Logic:
+
 - NORMAL (< 100 vehicles): Approve all permits
 - MODERATE (100-150 vehicles): Warn drivers, prioritize urgent
 - CONGESTED (> 150 vehicles): HALT NORMAL & LOW permits, protect EMERGENCY & ESSENTIAL
@@ -44,6 +45,7 @@ Traffic Response Logic:
 ## Database Schema
 
 Core Tables:
+
 - drivers: User accounts with phone authentication
 - time_slots: Bookable 2-hour windows with capacity
 - permits: Truck permits with priority levels and QR codes
@@ -62,10 +64,12 @@ When traffic status is CONGESTED, automatically halts NORMAL and LOW priority pe
 All endpoints are production-ready and tested.
 
 ### Traffic Management (Team 3)
+
 POST /api/traffic
 Receives traffic updates from AI camera system.
 
 Request:
+
 ```json
 {
   "camera_id": "CAM_01_KING_ABDULAZIZ",
@@ -78,6 +82,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -87,6 +92,7 @@ Response:
 ```
 
 ### Permit Booking (Team 2)
+
 GET /api/slots?date=YYYY-MM-DD
 Returns available time slots for a specific date with traffic predictions.
 
@@ -94,6 +100,7 @@ POST /api/book
 Books a permit for a driver with QR code generation.
 
 Request:
+
 ```json
 {
   "driver_id": "uuid",
@@ -104,6 +111,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -118,6 +126,7 @@ Response:
 ```
 
 ### Permit Management (Team 2)
+
 GET /api/permits?driver_id=UUID
 Returns all permits for a driver with full details.
 
@@ -125,6 +134,7 @@ POST /api/locations
 Records driver GPS location updates.
 
 Request:
+
 ```json
 {
   "driver_id": "uuid",
@@ -139,6 +149,7 @@ Request:
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 - Supabase account
@@ -146,11 +157,13 @@ Request:
 ### Local Development
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Set environment variables in .env.local:
+
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -158,11 +171,13 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 3. Apply database schema:
+
 - Go to Supabase SQL Editor
 - Copy contents of supabase/migrations/001_create_schema.sql
 - Execute
 
 4. Start development server:
+
 ```bash
 npm run dev
 ```
@@ -170,6 +185,7 @@ npm run dev
 Server runs at http://localhost:3000
 
 5. Run tests:
+
 ```bash
 ./scripts/test-endpoints.ps1
 ```
@@ -177,6 +193,7 @@ Server runs at http://localhost:3000
 ## Building and Deployment
 
 ### Build for Production
+
 ```bash
 npm run build
 npm run start
@@ -185,17 +202,20 @@ npm run start
 ### Deploy to Vercel
 
 1. Install Vercel CLI:
+
 ```bash
 npm install -g vercel
 ```
 
 2. Login and deploy:
+
 ```bash
 vercel login
 vercel
 ```
 
 3. Follow prompts. You will receive a live URL like:
+
 ```
 https://smart-logistics-xxxxx.vercel.app
 ```
@@ -214,6 +234,7 @@ npm run lint: Run ESLint
 ## Project Structure
 
 app/
+
 - api/: REST API endpoints
   - traffic/: Traffic updates from AI
   - slots/: Time slot availability
@@ -223,19 +244,23 @@ app/
 - (dashboard)/: Admin dashboard pages (future)
 
 lib/
+
 - supabase.ts: Supabase client initialization
 - types.ts: TypeScript types for database tables
 
 supabase/
+
 - migrations/: Database schema and seed data
 
 scripts/
+
 - seed-test-data.sql: Test data SQL
 - test-endpoints.ps1: Automated API testing
 
 ## Deliverables Checklist
 
 Day 1-2 (MUST HAVE):
+
 - Database schema fully set up with seed data: COMPLETE
 - 5 core API endpoints working: COMPLETE
 - Deployed to Vercel: PENDING
@@ -244,6 +269,7 @@ Day 1-2 (MUST HAVE):
 - Priority-aware halting logic tested: COMPLETE
 
 Day 3-4 (NICE TO HAVE):
+
 - Traffic prediction algorithm
 - Alternative slots suggestion system
 - Vessel schedule widget
@@ -254,6 +280,7 @@ Day 3-4 (NICE TO HAVE):
 ## Success Metrics
 
 Target outcomes for demonstration:
+
 - CONGESTED traffic triggers permit halting
 - EMERGENCY permits stay active (never halted)
 - NORMAL permits get rescheduled with alternatives
@@ -261,6 +288,7 @@ Target outcomes for demonstration:
 - Mobile app (Team 2) successfully books and views permits
 
 Key numbers:
+
 - 1,260 daily truck movements managed
 - 30% peak congestion reduction target
 - 100% EMERGENCY cargo protection
@@ -270,6 +298,7 @@ Key numbers:
 ## Known Limitations
 
 Trust-Based Priority (Prototype):
+
 - Drivers self-select cargo type (honor system)
 - No automated verification in hackathon version
 - Risk: 20-30% may falsely claim ESSENTIAL
@@ -277,6 +306,7 @@ Trust-Based Priority (Prototype):
 - Production: API integration and documentation checks
 
 Simulated Data:
+
 - Vessel schedules manually entered
 - Heuristic traffic predictions (not ML models)
 - Single camera demo footage
@@ -290,17 +320,20 @@ Deployment: Vercel
 ## References
 
 Full Specification: Traffic_Control_System2.pdf
+
 - Database Schema: Pages 19-28
 - API Documentation: Pages 49-52
 - Priority System: Pages 6-8, 29-31
 - Team Responsibilities: Pages 10-12
 
 Key Algorithms:
+
 - Priority halting: Page 24, Listing 14
 - Slot capacity: Page 24, Listing 13
 - Traffic classification: Page 17, Listing 1
 
 Port Context:
+
 - Dammam Port: 4,310 trucks entering per week
 - King Abdulaziz Road: Primary port corridor
 - Peak hours: 7-9 AM, 4-6 PM (40-50% of daily volume)

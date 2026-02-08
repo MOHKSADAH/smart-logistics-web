@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -28,10 +29,23 @@ import { toast } from "sonner";
 import { TimeSlot, VesselSchedule } from "@/lib/types";
 import { format } from "date-fns";
 
+// Auto-assign priority based on cargo type
+const CARGO_TO_PRIORITY: Record<string, "EMERGENCY" | "ESSENTIAL" | "NORMAL" | "LOW"> = {
+  MEDICAL: "EMERGENCY",
+  PERISHABLE: "EMERGENCY",
+  HAZARDOUS: "EMERGENCY",
+  TIME_SENSITIVE: "ESSENTIAL",
+  STANDARD: "NORMAL",
+  BULK: "LOW",
+  OTHER: "NORMAL",
+};
+
+// Schema is defined outside component, so validation messages are in English
+// Error messages are displayed using translation keys in the component
 const permitSchema = z.object({
-  driverId: z.string().min(1, "Driver is required"),
-  slotId: z.string().min(1, "Time slot is required"),
-  cargoType: z.string().min(1, "Cargo type is required"),
+  driverId: z.string().min(1, "required"),
+  slotId: z.string().min(1, "required"),
+  cargoType: z.string().min(1, "required"),
   priority: z.enum(["EMERGENCY", "ESSENTIAL", "NORMAL", "LOW"]),
   vesselId: z.string().optional(),
 });
@@ -57,6 +71,7 @@ export function CreatePermitDialog({
   availableSlots,
   vessels,
 }: CreatePermitDialogProps) {
+  const t = useTranslations('permits');
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
 
@@ -78,11 +93,11 @@ export function CreatePermitDialog({
     startTransition(async () => {
       const result = await createPermit(data);
       if (result.success) {
-        toast.success("Permit created successfully");
+        toast.success(t('permitCreatedSuccess'));
         setOpen(false);
         reset();
       } else {
-        toast.error(`Failed to create permit: ${result.error}`);
+        toast.error(`${t('permitCreatedError')}: ${result.error}`);
       }
     });
   };
@@ -92,28 +107,27 @@ export function CreatePermitDialog({
       <DialogTrigger asChild>
         <Button>
           <PlusCircle className="h-4 w-4 me-2" />
-          Create Permit
+          {t('create')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Permit</DialogTitle>
+          <DialogTitle>{t('createDialogTitle')}</DialogTitle>
           <DialogDescription>
-            Manually create a permit for a driver. All fields are required
-            except vessel.
+            {t('createDialogDescription')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Driver Selection */}
           <div className="space-y-2">
-            <Label htmlFor="driverId">Driver *</Label>
+            <Label htmlFor="driverId">{t('driver')} *</Label>
             <Select
               onValueChange={(value) => setValue("driverId", value)}
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a driver" />
+                <SelectValue placeholder={t('selectDriver')} />
               </SelectTrigger>
               <SelectContent>
                 {drivers.map((driver) => (
@@ -130,20 +144,20 @@ export function CreatePermitDialog({
 
           {/* Time Slot Selection */}
           <div className="space-y-2">
-            <Label htmlFor="slotId">Time Slot *</Label>
+            <Label htmlFor="slotId">{t('timeSlot')} *</Label>
             <Select
               onValueChange={(value) => setValue("slotId", value)}
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a time slot" />
+                <SelectValue placeholder={t('selectTimeSlot')} />
               </SelectTrigger>
               <SelectContent>
                 {availableSlots.map((slot) => (
                   <SelectItem key={slot.id} value={slot.id}>
                     {format(new Date(slot.date), "MMM d, yyyy")} -{" "}
                     {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}{" "}
-                    ({slot.capacity - slot.booked} available)
+                    ({slot.capacity - slot.booked} {t('available')})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -153,77 +167,78 @@ export function CreatePermitDialog({
             )}
           </div>
 
-          {/* Priority Selection */}
+          {/* Cargo Type - Priority is auto-assigned */}
           <div className="space-y-2">
-            <Label htmlFor="priority">Priority *</Label>
+            <Label htmlFor="cargoType">{t('cargoType')} *</Label>
             <Select
-              onValueChange={(value) =>
-                setValue("priority", value as PermitFormData["priority"])
-              }
-              defaultValue="NORMAL"
+              onValueChange={(value) => {
+                setValue("cargoType", value);
+                // Auto-assign priority based on cargo type
+                const priority = CARGO_TO_PRIORITY[value] || "NORMAL";
+                setValue("priority", priority);
+              }}
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder={t('selectCargoType')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="EMERGENCY">
+                <SelectItem value="MEDICAL">
                   <div>
-                    <div className="font-medium">EMERGENCY</div>
+                    <div className="font-medium">{t('cargoMedical')}</div>
                     <div className="text-xs text-muted-foreground">
-                      Medical, perishable goods (cannot be halted)
+                      EMERGENCY - {t('emergencyDesc')}
                     </div>
                   </div>
                 </SelectItem>
-                <SelectItem value="ESSENTIAL">
+                <SelectItem value="PERISHABLE">
                   <div>
-                    <div className="font-medium">ESSENTIAL</div>
+                    <div className="font-medium">{t('cargoPerishable')}</div>
                     <div className="text-xs text-muted-foreground">
-                      Time-sensitive cargo (cannot be halted)
+                      EMERGENCY - {t('emergencyDesc')}
                     </div>
                   </div>
                 </SelectItem>
-                <SelectItem value="NORMAL">
+                <SelectItem value="HAZARDOUS">
                   <div>
-                    <div className="font-medium">NORMAL</div>
+                    <div className="font-medium">{t('cargoHazardous')}</div>
                     <div className="text-xs text-muted-foreground">
-                      Standard containers (can be rescheduled)
+                      EMERGENCY - {t('emergencyDesc')}
                     </div>
                   </div>
                 </SelectItem>
-                <SelectItem value="LOW">
+                <SelectItem value="TIME_SENSITIVE">
                   <div>
-                    <div className="font-medium">LOW</div>
+                    <div className="font-medium">{t('cargoTimeSensitive')}</div>
                     <div className="text-xs text-muted-foreground">
-                      Bulk materials (flexible timing)
+                      ESSENTIAL - {t('essentialDesc')}
                     </div>
                   </div>
                 </SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.priority && (
-              <p className="text-sm text-red-600">{errors.priority.message}</p>
-            )}
-          </div>
-
-          {/* Cargo Type */}
-          <div className="space-y-2">
-            <Label htmlFor="cargoType">Cargo Type *</Label>
-            <Select
-              onValueChange={(value) => setValue("cargoType", value)}
-              disabled={isPending}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select cargo type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="MEDICAL">Medical Supplies</SelectItem>
-                <SelectItem value="PERISHABLE">Perishable Goods</SelectItem>
-                <SelectItem value="TIME_SENSITIVE">Time-Sensitive</SelectItem>
-                <SelectItem value="STANDARD">Standard Container</SelectItem>
-                <SelectItem value="BULK">Bulk Materials</SelectItem>
-                <SelectItem value="HAZARDOUS">Hazardous Materials</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
+                <SelectItem value="STANDARD">
+                  <div>
+                    <div className="font-medium">{t('cargoStandard')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      NORMAL - {t('normalDesc')}
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="BULK">
+                  <div>
+                    <div className="font-medium">{t('cargoBulk')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      LOW - {t('lowDesc')}
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="OTHER">
+                  <div>
+                    <div className="font-medium">{t('cargoOther')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      NORMAL - {t('normalDesc')}
+                    </div>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
             {errors.cargoType && (
@@ -233,18 +248,18 @@ export function CreatePermitDialog({
 
           {/* Vessel Selection (Optional) */}
           <div className="space-y-2">
-            <Label htmlFor="vesselId">Vessel (Optional)</Label>
+            <Label htmlFor="vesselId">{t('vesselOptional')}</Label>
             <Select
               onValueChange={(value) => setValue("vesselId", value)}
               disabled={isPending}
             >
               <SelectTrigger>
-                <SelectValue placeholder="No vessel assigned" />
+                <SelectValue placeholder={t('noVesselAssigned')} />
               </SelectTrigger>
               <SelectContent>
                 {vessels.map((vessel) => (
                   <SelectItem key={vessel.id} value={vessel.id}>
-                    {vessel.vessel_name} - Arriving{" "}
+                    {vessel.vessel_name} - {t('arriving')}{" "}
                     {format(new Date(vessel.arrival_date), "MMM d")}
                   </SelectItem>
                 ))}
@@ -259,10 +274,10 @@ export function CreatePermitDialog({
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create Permit"}
+              {isPending ? t('creating') : t('create')}
             </Button>
           </DialogFooter>
         </form>

@@ -1,13 +1,15 @@
 {
   "nav": {
-    "title": "اللوجستيات الذكية",
+    "title": "بورتا",
+    "adminTitle": "لوحة تحكم بورتا",
     "overview": "لوحة التحكم",
     "traffic": "حركة المرور",
     "permits": "التصاريح",
     "drivers": "السائقون",
     "vessels": "السفن",
     "analytics": "التحليلات",
-    "notifications": "الإشعارات"
+    "notifications": "الإشعارات",
+    "monitor": "المراقبة"
   },
   "dashboard": {
     "trafficStatus": "حالة حركة المرور الحالية",
@@ -23,7 +25,10 @@
     "upcomingVessels": "السفن القادمة",
     "time": "الوقت",
     "camera": "الكاميرا",
-    "status": "الحالة"
+    "status": "الحالة",
+    "updated": "آخر تحديث",
+    "estimated": "تقريبًا",
+    "at": "في"
   },
   "permits": {
     "title": "إدارة التصاريح",
@@ -42,7 +47,33 @@
     "approve": "موافقة",
     "halt": "إيقاف",
     "reschedule": "إعادة جدولة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "createDialogTitle": "إنشاء تصريح جديد",
+    "createDialogDescription": "إنشاء تصريح يدويًا للسائق. جميع الحقول مطلوبة عدا السفينة.",
+    "selectDriver": "اختر سائق",
+    "selectTimeSlot": "اختر فترة زمنية",
+    "selectCargoType": "اختر نوع البضائع",
+    "available": "متاح",
+    "vesselOptional": "السفينة (اختياري)",
+    "noVesselAssigned": "لم يتم تعيين سفينة",
+    "arriving": "قادمة",
+    "creating": "جاري الإنشاء...",
+    "driverRequired": "السائق مطلوب",
+    "timeSlotRequired": "الفترة الزمنية مطلوبة",
+    "cargoTypeRequired": "نوع البضائع مطلوب",
+    "permitCreatedSuccess": "تم إنشاء التصريح بنجاح",
+    "permitCreatedError": "فشل إنشاء التصريح",
+    "emergencyDesc": "طبية، سلع قابلة للتلف (لا يمكن إيقافها)",
+    "essentialDesc": "بضائع حساسة للوقت (لا يمكن إيقافها)",
+    "normalDesc": "حاويات عادية (يمكن إعادة جدولتها)",
+    "lowDesc": "مواد سائبة (وقت مرن)",
+    "cargoMedical": "مستلزمات طبية",
+    "cargoPerishable": "سلع قابلة للتلف",
+    "cargoTimeSensitive": "حساسة للوقت",
+    "cargoStandard": "حاوية عادية",
+    "cargoBulk": "مواد سائبة",
+    "cargoHazardous": "مواد خطرة",
+    "cargoOther": "أخرى"
   },
   "traffic": {
     "title": "مراقبة حركة المرور",
@@ -52,7 +83,11 @@
     "truckCount": "عدد الشاحنات",
     "recommendation": "التوصية",
     "historicalTrends": "الاتجاهات التاريخية",
-    "lastUpdated": "آخر تحديث"
+    "lastUpdated": "آخر تحديث",
+    "camera": "الكاميرا",
+    "cameraId": "معرف الكاميرا",
+    "timestamp": "الوقت والتاريخ",
+    "updated": "آخر تحديث"
   },
   "drivers": {
     "title": "إدارة السائقين",
@@ -64,7 +99,12 @@
     "totalPermits": "إجمالي التصاريح",
     "noDrivers": "لا يوجد سائقون",
     "searchPlaceholder": "البحث بالاسم أو الهاتف أو رقم اللوحة...",
-    "allVehicles": "جميع المركبات"
+    "allVehicles": "جميع المركبات",
+    "active": "نشطة",
+    "halted": "موقوفة",
+    "showingDrivers": "عرض سائق واحد",
+    "showingDriversPlural": "عرض {count} سائق",
+    "totalPermitsLabel": "إجمالي التصاريح"
   },
   "vessels": {
     "title": "جدول السفن",
@@ -73,7 +113,11 @@
     "arrivalDate": "تاريخ الوصول",
     "cargoType": "نوع البضائع",
     "expectedTrucks": "الشاحنات المتوقعة",
-    "noVessels": "لا توجد سفن قادمة"
+    "noVessels": "لا توجد سفن قادمة",
+    "time": "الوقت",
+    "status": "الحالة",
+    "actual": "الفعلي",
+    "tbd": "لم يحدد بعد"
   },
   "analytics": {
     "title": "لوحة التحليلات",
@@ -127,21 +171,57 @@
     "driver": "سائق",
     "drivers": "سائقين",
     "totalPermits": "إجمالي التصاريح",
-    "search": "بحث"
+    "search": "بحث",
+    "status": "الحالة"
   },
   "permitDetail": {
     "title": "تفاصيل التصريح",
     "description": "معلومات كاملة عن التصريح {qrCode}",
     "qrCode": "رمز الاستجابة السريعة",
     "driverInfo": "معلومات السائق",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "vehiclePlate": "رقم اللوحة",
+    "vehicleType": "نوع المركبة",
     "cargoDetails": "تفاصيل البضائع",
+    "cargoType": "نوع البضائع",
+    "priorityLevel": "مستوى الأولوية",
     "scheduledSlot": "الفترة الزمنية المجدولة",
-    "vesselInfo": "معلومات السفينة",
-    "auditTrail": "سجل المراجعة",
     "date": "التاريخ",
     "time": "الوقت",
     "slotCapacity": "سعة الفترة",
     "noSlot": "لم يتم تعيين فترة زمنية",
+    "vesselInfo": "معلومات السفينة",
+    "vesselName": "اسم السفينة",
+    "arrivalDate": "تاريخ الوصول",
+    "auditTrail": "سجل المراجعة",
+    "created": "تاريخ الإنشاء",
     "lastUpdated": "آخر تحديث"
+  },
+  "permitActions": {
+    "approve": "موافقة",
+    "halt": "إيقاف",
+    "cancel": "إلغاء",
+    "approveTitle": "الموافقة على التصريح",
+    "approveDesc": "سيتم الموافقة على التصريح والسماح للسائق بالمتابعة. هل أنت متأكد؟",
+    "haltTitle": "إيقاف التصريح",
+    "haltDesc": "سيتم إيقاف التصريح وإخطار السائق. سيحتاج إلى إعادة الجدولة. هل أنت متأكد؟",
+    "cancelTitle": "إلغاء التصريح",
+    "cancelDesc": "سيتم إلغاء التصريح نهائيًا. لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد؟",
+    "haltPermit": "إيقاف التصريح",
+    "cancelPermit": "إلغاء التصريح",
+    "approvedSuccess": "تمت الموافقة على التصريح بنجاح",
+    "haltedSuccess": "تم إيقاف التصريح بنجاح",
+    "cancelledSuccess": "تم إلغاء التصريح بنجاح",
+    "actionError": "فشل {action} التصريح: {error}"
+  },
+  "cargoTypes": {
+    "MEDICAL": "مستلزمات طبية",
+    "PERISHABLE": "سلع قابلة للتلف",
+    "HAZARDOUS": "مواد خطرة",
+    "TIME_SENSITIVE": "حساسة للوقت",
+    "STANDARD": "حاوية عادية",
+    "BULK": "مواد سائبة",
+    "OTHER": "أخرى"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import { QRCodeDisplay } from "@/components/qr-code-display";
 import { PriorityBadge } from "@/components/priority-badge";
 import { PermitStatusBadge } from "@/components/permit-status-badge";
 import { Separator } from "@/components/ui/separator";
+import { TruckPlateBadge } from "@/components/truck-plate-badge";
 
 interface PermitDetailDialogProps {
   permit: {
@@ -48,6 +50,14 @@ interface PermitDetailDialogProps {
 
 export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('permitDetail');
+  const tCommon = useTranslations('common');
+  const tCargo = useTranslations('cargoTypes');
+
+  // Helper to get translated cargo type
+  const getCargoTypeLabel = (cargoType: string) => {
+    return tCargo(cargoType as any) || cargoType;
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -58,9 +68,9 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Permit Details</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Complete information for permit {permit.qr_code}
+            {t('description', { qrCode: permit.qr_code })}
           </DialogDescription>
         </DialogHeader>
 
@@ -79,26 +89,30 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Driver Information */}
           <div>
-            <h3 className="font-semibold mb-3">Driver Information</h3>
+            <h3 className="font-semibold mb-3">{t('driverInfo')}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Name</p>
-                <p className="font-medium">{permit.driver?.name || "N/A"}</p>
+                <p className="text-muted-foreground">{t('name')}</p>
+                <p className="font-medium">{permit.driver?.name || tCommon('na')}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Phone</p>
-                <p className="font-medium">{permit.driver?.phone || "N/A"}</p>
+                <p className="text-muted-foreground">{t('phone')}</p>
+                <p className="font-medium">{permit.driver?.phone || tCommon('na')}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Vehicle Plate</p>
-                <p className="font-medium font-mono">
-                  {permit.driver?.vehicle_plate || "N/A"}
-                </p>
+                <p className="text-muted-foreground">{t('vehiclePlate')}</p>
+                <div className="font-medium">
+                  {permit.driver?.vehicle_plate ? (
+                    <TruckPlateBadge plate={permit.driver.vehicle_plate} />
+                  ) : (
+                    tCommon('na')
+                  )}
+                </div>
               </div>
               <div>
-                <p className="text-muted-foreground">Vehicle Type</p>
+                <p className="text-muted-foreground">{t('vehicleType')}</p>
                 <p className="font-medium">
-                  {permit.driver?.vehicle_type || "N/A"}
+                  {permit.driver?.vehicle_type || tCommon('na')}
                 </p>
               </div>
             </div>
@@ -108,14 +122,14 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Cargo & Priority */}
           <div>
-            <h3 className="font-semibold mb-3">Cargo Details</h3>
+            <h3 className="font-semibold mb-3">{t('cargoDetails')}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Cargo Type</p>
-                <p className="font-medium">{permit.cargo_type}</p>
+                <p className="text-muted-foreground">{t('cargoType')}</p>
+                <p className="font-medium">{getCargoTypeLabel(permit.cargo_type)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Priority Level</p>
+                <p className="text-muted-foreground">{t('priorityLevel')}</p>
                 <PriorityBadge priority={permit.priority} />
               </div>
             </div>
@@ -125,32 +139,32 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Time Slot */}
           <div>
-            <h3 className="font-semibold mb-3">Scheduled Time Slot</h3>
+            <h3 className="font-semibold mb-3">{t('scheduledSlot')}</h3>
             {permit.slot ? (
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Date</p>
+                  <p className="text-muted-foreground">{t('date')}</p>
                   <p className="font-medium">
                     {format(new Date(permit.slot.date), "MMMM d, yyyy")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Time</p>
+                  <p className="text-muted-foreground">{t('time')}</p>
                   <p className="font-medium">
                     {permit.slot.start_time.slice(0, 5)} -{" "}
                     {permit.slot.end_time.slice(0, 5)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Slot Capacity</p>
+                  <p className="text-muted-foreground">{t('slotCapacity')}</p>
                   <p className="font-medium">
-                    {permit.slot.booked} / {permit.slot.capacity} trucks
+                    {tCommon('trucks')} {permit.slot.booked} / {permit.slot.capacity}
                   </p>
                 </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No time slot assigned
+                {t('noSlot')}
               </p>
             )}
           </div>
@@ -159,14 +173,14 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
             <>
               <Separator />
               <div>
-                <h3 className="font-semibold mb-3">Vessel Information</h3>
+                <h3 className="font-semibold mb-3">{t('vesselInfo')}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Vessel Name</p>
+                    <p className="text-muted-foreground">{t('vesselName')}</p>
                     <p className="font-medium">{permit.vessel.vessel_name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Arrival Date</p>
+                    <p className="text-muted-foreground">{t('arrivalDate')}</p>
                     <p className="font-medium">
                       {format(
                         new Date(permit.vessel.arrival_date),
@@ -183,16 +197,16 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Timestamps */}
           <div>
-            <h3 className="font-semibold mb-3">Audit Trail</h3>
+            <h3 className="font-semibold mb-3">{t('auditTrail')}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Created</p>
+                <p className="text-muted-foreground">{t('created')}</p>
                 <p className="font-medium">
                   {format(new Date(permit.created_at), "MMM d, yyyy HH:mm")}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Last Updated</p>
+                <p className="text-muted-foreground">{t('lastUpdated')}</p>
                 <p className="font-medium">
                   {format(new Date(permit.updated_at), "MMM d, yyyy HH:mm")}
                 </p>

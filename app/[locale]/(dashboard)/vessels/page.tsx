@@ -43,10 +43,10 @@ export default async function VesselsPage() {
             <TableRow>
               <TableHead>{t("vesselName")}</TableHead>
               <TableHead>{t("arrivalDate")}</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("time")}</TableHead>
+              <TableHead>{t("status")}</TableHead>
               <TableHead>{t("expectedTrucks")}</TableHead>
-              <TableHead>Actual</TableHead>
+              <TableHead>{t("actual")}</TableHead>
               <TableHead>{t("cargoType")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,7 +72,7 @@ export default async function VesselsPage() {
                   <TableCell>
                     {vessel.arrival_time
                       ? vessel.arrival_time.slice(0, 5)
-                      : "TBD"}
+                      : t("tbd")}
                   </TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(vessel.status)}>

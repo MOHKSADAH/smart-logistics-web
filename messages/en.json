@@ -1,13 +1,15 @@
 {
   "nav": {
-    "title": "Smart Logistics",
+    "title": "PORTA",
+    "adminTitle": "PORTA Admin",
     "overview": "Overview",
     "traffic": "Traffic",
     "permits": "Permits",
     "drivers": "Drivers",
     "vessels": "Vessels",
     "analytics": "Analytics",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "monitor": "Monitor"
   },
   "dashboard": {
     "trafficStatus": "Current Traffic Status",
@@ -23,7 +25,10 @@
     "upcomingVessels": "Upcoming Vessels",
     "time": "Time",
     "camera": "Camera",
-    "status": "Status"
+    "status": "Status",
+    "updated": "Updated",
+    "estimated": "Est.",
+    "at": "at"
   },
   "permits": {
     "title": "Permit Management",
@@ -42,7 +47,33 @@
     "approve": "Approve",
     "halt": "Halt",
     "reschedule": "Reschedule",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "createDialogTitle": "Create New Permit",
+    "createDialogDescription": "Manually create a permit for a driver. All fields are required except vessel.",
+    "selectDriver": "Select a driver",
+    "selectTimeSlot": "Select a time slot",
+    "selectCargoType": "Select cargo type",
+    "available": "available",
+    "vesselOptional": "Vessel (Optional)",
+    "noVesselAssigned": "No vessel assigned",
+    "arriving": "Arriving",
+    "creating": "Creating...",
+    "driverRequired": "Driver is required",
+    "timeSlotRequired": "Time slot is required",
+    "cargoTypeRequired": "Cargo type is required",
+    "permitCreatedSuccess": "Permit created successfully",
+    "permitCreatedError": "Failed to create permit",
+    "emergencyDesc": "Medical, perishable goods (cannot be halted)",
+    "essentialDesc": "Time-sensitive cargo (cannot be halted)",
+    "normalDesc": "Standard containers (can be rescheduled)",
+    "lowDesc": "Bulk materials (flexible timing)",
+    "cargoMedical": "Medical Supplies",
+    "cargoPerishable": "Perishable Goods",
+    "cargoTimeSensitive": "Time-Sensitive",
+    "cargoStandard": "Standard Container",
+    "cargoBulk": "Bulk Materials",
+    "cargoHazardous": "Hazardous Materials",
+    "cargoOther": "Other"
   },
   "traffic": {
     "title": "Traffic Monitoring",
@@ -52,7 +83,11 @@
     "truckCount": "Truck Count",
     "recommendation": "Recommendation",
     "historicalTrends": "Historical Trends",
-    "lastUpdated": "Last updated"
+    "lastUpdated": "Last updated",
+    "camera": "Camera",
+    "cameraId": "Camera ID",
+    "timestamp": "Timestamp",
+    "updated": "Updated"
   },
   "drivers": {
     "title": "Driver Management",
@@ -64,7 +99,12 @@
     "totalPermits": "Total Permits",
     "noDrivers": "No drivers found",
     "searchPlaceholder": "Search by name, phone, or plate number...",
-    "allVehicles": "All Vehicles"
+    "allVehicles": "All Vehicles",
+    "active": "Active",
+    "halted": "Halted",
+    "showingDrivers": "Showing {count} driver",
+    "showingDriversPlural": "Showing {count} drivers",
+    "totalPermitsLabel": "Total permits"
   },
   "vessels": {
     "title": "Vessel Schedule",
@@ -73,7 +113,11 @@
     "arrivalDate": "Arrival Date",
     "cargoType": "Cargo Type",
     "expectedTrucks": "Expected Trucks",
-    "noVessels": "No upcoming vessels"
+    "noVessels": "No upcoming vessels",
+    "time": "Time",
+    "status": "Status",
+    "actual": "Actual",
+    "tbd": "TBD"
   },
   "analytics": {
     "title": "Analytics Dashboard",
@@ -134,14 +178,49 @@
     "description": "Complete information for permit {qrCode}",
     "qrCode": "QR Code",
     "driverInfo": "Driver Information",
+    "name": "Name",
+    "phone": "Phone",
+    "vehiclePlate": "Vehicle Plate",
+    "vehicleType": "Vehicle Type",
     "cargoDetails": "Cargo Details",
+    "cargoType": "Cargo Type",
+    "priorityLevel": "Priority Level",
     "scheduledSlot": "Scheduled Time Slot",
-    "vesselInfo": "Vessel Information",
-    "auditTrail": "Audit Trail",
     "date": "Date",
     "time": "Time",
     "slotCapacity": "Slot Capacity",
     "noSlot": "No time slot assigned",
+    "vesselInfo": "Vessel Information",
+    "vesselName": "Vessel Name",
+    "arrivalDate": "Arrival Date",
+    "auditTrail": "Audit Trail",
+    "created": "Created",
     "lastUpdated": "Last Updated"
+  },
+  "permitActions": {
+    "approve": "Approve",
+    "halt": "Halt",
+    "cancel": "Cancel",
+    "approveTitle": "Approve Permit",
+    "approveDesc": "This will approve the permit and allow the driver to proceed. Are you sure?",
+    "haltTitle": "Halt Permit",
+    "haltDesc": "This will halt the permit and notify the driver. They will need to reschedule. Are you sure?",
+    "cancelTitle": "Cancel Permit",
+    "cancelDesc": "This will permanently cancel the permit. This action cannot be undone. Are you sure?",
+    "haltPermit": "Halt Permit",
+    "cancelPermit": "Cancel Permit",
+    "approvedSuccess": "Permit approved successfully",
+    "haltedSuccess": "Permit halted successfully",
+    "cancelledSuccess": "Permit cancelled successfully",
+    "actionError": "Failed to {action} permit: {error}"
+  },
+  "cargoTypes": {
+    "MEDICAL": "Medical Supplies",
+    "PERISHABLE": "Perishable Goods",
+    "HAZARDOUS": "Hazardous Materials",
+    "TIME_SENSITIVE": "Time-Sensitive",
+    "STANDARD": "Standard Container",
+    "BULK": "Bulk Materials",
+    "OTHER": "Other"
   }
 }

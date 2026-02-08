@@ -31,7 +31,7 @@ export default async function AnalyticsPage() {
         {/* Permit Status Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle>Permit Status Breakdown</CardTitle>
+            <CardTitle>{t('permitStatusBreakdown')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -62,7 +62,7 @@ export default async function AnalyticsPage() {
         {/* Priority Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Priority Distribution</CardTitle>
+            <CardTitle>{t('priorityDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

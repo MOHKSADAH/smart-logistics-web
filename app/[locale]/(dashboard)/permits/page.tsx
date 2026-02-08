@@ -16,6 +16,7 @@ import { PermitActions } from "@/components/permit-actions";
 import { CreatePermitDialog } from "@/components/create-permit-dialog";
 import { PermitDetailDialog } from "@/components/permit-detail-dialog";
 import { RealtimeListener } from "@/components/realtime-listener";
+import { TruckPlateBadge } from "@/components/truck-plate-badge";
 import {
   getAllPermits,
   getAvailableSlots,
@@ -89,13 +90,13 @@ export default async function PermitsPage({
                     {permit.qr_code}
                   </TableCell>
                   <TableCell>
-                    <div>
+                    <div className="space-y-1.5">
                       <div className="font-medium">
-                        {permit.driver?.name || "{tCommon('na')}"}
+                        {permit.driver?.name || tCommon('na')}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {permit.driver?.vehicle_plate || ""}
-                      </div>
+                      {permit.driver?.vehicle_plate && (
+                        <TruckPlateBadge plate={permit.driver.vehicle_plate} />
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -117,7 +118,7 @@ export default async function PermitsPage({
                         </div>
                       </div>
                     ) : (
-                      "{tCommon('na')}"
+                      tCommon('na')
                     )}
                   </TableCell>
                   <TableCell className="text-xs">
