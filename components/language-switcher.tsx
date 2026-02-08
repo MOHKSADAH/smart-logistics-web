@@ -3,7 +3,6 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Languages } from 'lucide-react';
 
 export function LanguageSwitcher() {
   const router = useRouter();
@@ -17,8 +16,7 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={switchLocale}>
-      <Languages className="h-4 w-4 me-2" />
+    <Button variant="outline" size="sm" onClick={switchLocale} className="font-medium">
       {currentLocale === 'en' ? 'العربية' : 'English'}
     </Button>
   );

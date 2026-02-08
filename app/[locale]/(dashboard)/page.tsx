@@ -59,7 +59,7 @@ export default async function DashboardPage() {
                 </span>
                 {traffic.current && (
                   <span className="text-xs text-muted-foreground">
-                    Updated{" "}
+                    {t('updated')}{" "}
                     {formatDistanceToNow(new Date(traffic.current.timestamp), {
                       addSuffix: true,
                     })}
@@ -159,10 +159,10 @@ export default async function DashboardPage() {
                     <div className="text-sm text-muted-foreground">
                       {format(new Date(vessel.arrival_date), "MMM d, yyyy")}
                       {vessel.arrival_time &&
-                        ` at ${vessel.arrival_time.slice(0, 5)}`}
+                        ` ${t('at')} ${vessel.arrival_time.slice(0, 5)}`}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Est. {vessel.estimated_trucks} trucks
+                      {t('estimated')} {vessel.estimated_trucks} {tCommon('trucks')}
                     </div>
                   </div>
                 ))}

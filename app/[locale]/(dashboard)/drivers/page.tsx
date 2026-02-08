@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { RealtimeListener } from "@/components/realtime-listener";
 import { DriverFilters } from "@/components/driver-filters";
+import { TruckPlateBadge } from "@/components/truck-plate-badge";
 import { getDriversWithStats } from "@/lib/queries";
 
 export default async function DriversPage({
@@ -51,8 +52,8 @@ export default async function DriversPage({
               <TableHead>{t('vehicle')}</TableHead>
               <TableHead>{t('type')}</TableHead>
               <TableHead>{t('totalPermits')}</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead>Halted</TableHead>
+              <TableHead>{t('active')}</TableHead>
+              <TableHead>{t('halted')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -78,8 +79,8 @@ export default async function DriversPage({
                 <TableRow key={driver.id}>
                   <TableCell className="font-medium">{driver.name}</TableCell>
                   <TableCell>{driver.phone}</TableCell>
-                  <TableCell className="font-mono">
-                    {driver.vehicle_plate}
+                  <TableCell>
+                    <TruckPlateBadge plate={driver.vehicle_plate} />
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{driver.vehicle_type}</Badge>
@@ -118,12 +119,13 @@ export default async function DriversPage({
       {drivers.length > 0 && (
         <div className="flex gap-4 text-sm text-muted-foreground">
           <div>
-            Showing <span className="font-medium text-foreground">{drivers.length}</span> driver
-            {drivers.length !== 1 ? "s" : ""}
+            {tCommon('showing')}{" "}
+            <span className="font-medium text-foreground">{drivers.length}</span>{" "}
+            {drivers.length === 1 ? tCommon('driver') : tCommon('drivers')}
           </div>
           <div>•</div>
           <div>
-            Total permits:{" "}
+            {t('totalPermitsLabel')}:{" "}
             <span className="font-medium text-foreground">
               {drivers.reduce((sum, d) => sum + d.permitCounts.total, 0)}
             </span>

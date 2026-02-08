@@ -17,7 +17,6 @@ import { getTrafficData } from "@/lib/queries";
 
 export default async function TrafficPage() {
   const t = await getTranslations('traffic');
-  const tCommon = await getTranslations('common');
   const traffic = await getTrafficData();
   const recentUpdates = traffic.history.slice(-20).reverse();
 
@@ -61,13 +60,13 @@ export default async function TrafficPage() {
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Camera:</span>{" "}
+                    <span className="text-muted-foreground">{t('camera')}:</span>{" "}
                     <span className="font-mono text-xs">
                       {traffic.current.camera_id}
                     </span>
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    Updated{" "}
+                    {t('updated')}{" "}
                     {formatDistanceToNow(new Date(traffic.current.timestamp), {
                       addSuffix: true,
                     })}
@@ -89,8 +88,8 @@ export default async function TrafficPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Camera ID</TableHead>
+                <TableHead>{t('timestamp')}</TableHead>
+                <TableHead>{t('cameraId')}</TableHead>
                 <TableHead>{t('currentStatus')}</TableHead>
                 <TableHead>{t('vehicleCount')}</TableHead>
                 <TableHead>{t('truckCount')}</TableHead>

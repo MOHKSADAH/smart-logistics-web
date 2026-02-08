@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import { RealtimeListener } from "@/components/realtime-listener";
+import { TruckPlateBadge } from "@/components/truck-plate-badge";
 import { getServerSupabaseClient } from "@/lib/supabase";
 
 async function getNotifications() {
@@ -107,13 +108,13 @@ export default async function NotificationsPage() {
               notifications.map((notification) => (
                 <TableRow key={notification.id}>
                   <TableCell>
-                    <div>
+                    <div className="space-y-1.5">
                       <div className="font-medium">
-                        {notification.driver?.name || "N/A"}
+                        {notification.driver?.name || tCommon('na')}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {notification.driver?.vehicle_plate || ""}
-                      </div>
+                      {notification.driver?.vehicle_plate && (
+                        <TruckPlateBadge plate={notification.driver.vehicle_plate} />
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>

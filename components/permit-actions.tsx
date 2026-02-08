@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -38,6 +39,8 @@ export function PermitActions({
 }: PermitActionsProps) {
   const [isPending, startTransition] = useTransition();
   const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const t = useTranslations('permitActions');
+  const tCommon = useTranslations('common');
 
   const handleAction = async (
     action: () => Promise<{ success: boolean; error?: string }>,
@@ -46,10 +49,10 @@ export function PermitActions({
     startTransition(async () => {
       const result = await action();
       if (result.success) {
-        toast.success(`Permit ${actionName} successfully`);
+        toast.success(t(`${actionName}Success` as any));
         setOpenDialog(null);
       } else {
-        toast.error(`Failed to ${actionName} permit: ${result.error}`);
+        toast.error(t('actionError', { action: actionName, error: result.error || 'Unknown error' }));
       }
     });
   };
@@ -83,25 +86,24 @@ export function PermitActions({
               disabled={isPending}
             >
               <CheckCircle className="h-4 w-4 me-1" />
-              Approve
+              {t('approve')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Approve Permit</AlertDialogTitle>
+              <AlertDialogTitle>{t('approveTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will approve the permit and allow the driver to proceed.
-                Are you sure?
+                {t('approveDesc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() =>
                   handleAction(() => approvePermit(permitId), "approved")
                 }
               >
-                Approve
+                {t('approve')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -130,26 +132,25 @@ export function PermitActions({
               disabled={isPending}
             >
               <Ban className="h-4 w-4 me-1" />
-              Halt
+              {t('halt')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Halt Permit</AlertDialogTitle>
+              <AlertDialogTitle>{t('haltTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will halt the permit and notify the driver. They will need
-                to reschedule. Are you sure?
+                {t('haltDesc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() =>
                   handleAction(() => haltPermit(permitId), "halted")
                 }
                 className="bg-orange-600 hover:bg-orange-700"
               >
-                Halt Permit
+                {t('haltPermit')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -169,26 +170,25 @@ export function PermitActions({
               disabled={isPending}
             >
               <XCircle className="h-4 w-4 me-1" />
-              Cancel
+              {t('cancel')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Cancel Permit</AlertDialogTitle>
+              <AlertDialogTitle>{t('cancelTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently cancel the permit. This action cannot be
-                undone. Are you sure?
+                {t('cancelDesc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Go Back</AlertDialogCancel>
+              <AlertDialogCancel>{tCommon('goBack')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() =>
                   handleAction(() => cancelPermit(permitId), "cancelled")
                 }
                 className="bg-red-600 hover:bg-red-700"
               >
-                Cancel Permit
+                {t('cancelPermit')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
