@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (slotError || !slot) {
       return NextResponse.json(
         { success: false, message: "Time slot not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -50,14 +50,14 @@ export async function POST(request: NextRequest) {
     if (slot.status === "FULL" || slot.booked >= slot.capacity) {
       return NextResponse.json(
         { success: false, message: "Time slot is full" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (slot.status === "CLOSED") {
       return NextResponse.json(
         { success: false, message: "Time slot is closed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -71,16 +71,23 @@ export async function POST(request: NextRequest) {
     if (driverError || !driver) {
       return NextResponse.json(
         { success: false, message: "Driver not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Determine priority level based on cargo type
-    const { data: priorityRule } = await supabase
+    const { data: priorityRule, error: priorityRuleError } = await supabase
       .from("priority_rules")
       .select("priority_level")
       .eq("cargo_type", validatedData.cargo_type)
       .single();
+
+    if (priorityRuleError) {
+      console.warn(
+        "Priority rule lookup failed, defaulting to NORMAL:",
+        priorityRuleError,
+      );
+    }
 
     const priority = priorityRule?.priority_level || "NORMAL";
 
@@ -110,7 +117,7 @@ export async function POST(request: NextRequest) {
       console.error("Failed to create permit:", permitError);
       return NextResponse.json(
         { success: false, message: "Failed to create permit" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -149,7 +156,7 @@ export async function POST(request: NextRequest) {
         },
         message: "Permit booked successfully",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     // Handle Zod validation errors
@@ -165,7 +172,7 @@ export async function POST(request: NextRequest) {
           message: "Validation failed",
           errors: validationErrors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -174,9 +181,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: error instanceof Error ? error.message : "Internal server error",
+        message:
+          error instanceof Error ? error.message : "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
