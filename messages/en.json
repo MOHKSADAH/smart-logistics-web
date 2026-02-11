@@ -165,11 +165,11 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "goBack": "Go Back",
-    "vehicles": "vehicles",
-    "trucks": "trucks",
+    "vehicles": "Vehicles",
+    "trucks": "Trucks",
     "showing": "Showing",
-    "driver": "driver",
-    "drivers": "drivers",
+    "driver": "Driver",
+    "drivers": "Drivers",
     "totalPermits": "Total permits",
     "search": "Search",
     "status": "Status"
@@ -221,7 +221,9 @@
     "HAZARDOUS": "Hazardous Materials",
     "TIME_SENSITIVE": "Time-Sensitive",
     "STANDARD": "Standard Container",
+    "CONTAINER": "Container",
     "BULK": "Bulk Materials",
+    "MATERIALS": "Materials",
     "OTHER": "Other"
   }
 }

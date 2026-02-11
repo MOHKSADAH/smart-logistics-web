@@ -221,7 +221,9 @@
     "HAZARDOUS": "مواد خطرة",
     "TIME_SENSITIVE": "حساسة للوقت",
     "STANDARD": "حاوية عادية",
+    "CONTAINER": "حاوية",
     "BULK": "مواد سائبة",
+    "MATERIALS": "مواد",
     "OTHER": "أخرى"
   }
 }

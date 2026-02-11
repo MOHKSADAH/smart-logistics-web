@@ -161,7 +161,8 @@ Local Development Setup:
 
 Testing:
 - ./scripts/test-endpoints.ps1 - Automated API endpoint testing
-- ./scripts/seed-test-data.sql - Populate test data
+- ./scripts/seed-test-data.sql - Populate test data (run in Supabase SQL Editor)
+- Invoke-WebRequest -Uri "http://localhost:3000/api/seed-traffic" -Method POST - Seed 48 hours of traffic data
 - All 5 core endpoints tested and working
 
 Development Commands:
