@@ -1,6 +1,6 @@
 import { FileCheck, XCircle, ShieldCheck, Calendar } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -20,8 +20,8 @@ import {
 } from "@/lib/queries";
 
 export default async function DashboardPage() {
-  const t = await getTranslations('dashboard');
-  const tCommon = await getTranslations('common');
+  const t = await getTranslations("dashboard");
+  const tCommon = await getTranslations("common");
 
   const [stats, traffic, vessels] = await Promise.all([
     getDashboardStats(),
@@ -44,22 +44,23 @@ export default async function DashboardPage() {
           stats.currentTrafficStatus === "CONGESTED"
             ? "bg-red-50 border-red-200"
             : stats.currentTrafficStatus === "MODERATE"
-            ? "bg-yellow-50 border-yellow-200"
-            : "bg-green-50 border-green-200"
+              ? "bg-yellow-50 border-yellow-200"
+              : "bg-green-50 border-green-200"
         }
       >
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">{t('trafficStatus')}</h2>
+              <h2 className="text-2xl font-bold">{t("trafficStatus")}</h2>
               <div className="flex items-center gap-4 mt-2">
                 <TrafficStatusBadge status={stats.currentTrafficStatus} />
                 <span className="text-sm text-muted-foreground">
-                  {stats.vehicleCount} {tCommon('vehicles')} · {stats.truckCount} {tCommon('trucks')}
+                  {stats.vehicleCount} {tCommon("vehicles")} ·{" "}
+                  {stats.truckCount} {tCommon("trucks")}
                 </span>
                 {traffic.current && (
                   <span className="text-xs text-muted-foreground">
-                    {t('updated')}{" "}
+                    {t("updated")}{" "}
                     {formatDistanceToNow(new Date(traffic.current.timestamp), {
                       addSuffix: true,
                     })}
@@ -74,30 +75,30 @@ export default async function DashboardPage() {
       {/* Stat Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title={t('totalPermits')}
+          title={t("totalPermits")}
           value={stats.totalPermits}
           icon={FileCheck}
-          description={t('activeBookings')}
+          description={t("activeBookings")}
         />
         <StatCard
-          title={t('approved')}
+          title={t("approved")}
           value={stats.approvedCount}
           icon={ShieldCheck}
-          description={t('protectedCount', { count: stats.protectedCount })}
+          description={t("protectedCount", { count: stats.protectedCount })}
           className="border-green-200"
         />
         <StatCard
-          title={t('halted')}
+          title={t("halted")}
           value={stats.haltedCount}
           icon={XCircle}
-          description={t('dueToCongestion')}
+          description={t("dueToCongestion")}
           className="border-red-200"
         />
         <StatCard
-          title={t('slotUtilization')}
+          title={t("slotUtilization")}
           value={`${stats.availableSlotsToday}/${stats.totalSlotsToday}`}
           icon={Calendar}
-          description={t('availableSlots')}
+          description={t("availableSlots")}
         />
       </div>
 
@@ -107,17 +108,17 @@ export default async function DashboardPage() {
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>{t('recentTraffic')}</CardTitle>
+              <CardTitle>{t("recentTraffic")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t('time')}</TableHead>
-                    <TableHead>{t('camera')}</TableHead>
-                    <TableHead>{t('status')}</TableHead>
-                    <TableHead>{tCommon('vehicles')}</TableHead>
-                    <TableHead>{tCommon('trucks')}</TableHead>
+                    <TableHead>{t("time")}</TableHead>
+                    <TableHead>{t("camera")}</TableHead>
+                    <TableHead>{tCommon("status")}</TableHead>
+                    <TableHead>{tCommon("vehicles")}</TableHead>
+                    <TableHead>{tCommon("trucks")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -146,7 +147,7 @@ export default async function DashboardPage() {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>{t('upcomingVessels')}</CardTitle>
+              <CardTitle>{t("upcomingVessels")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -159,10 +160,11 @@ export default async function DashboardPage() {
                     <div className="text-sm text-muted-foreground">
                       {format(new Date(vessel.arrival_date), "MMM d, yyyy")}
                       {vessel.arrival_time &&
-                        ` ${t('at')} ${vessel.arrival_time.slice(0, 5)}`}
+                        ` ${t("at")} ${vessel.arrival_time.slice(0, 5)}`}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      {t('estimated')} {vessel.estimated_trucks} {tCommon('trucks')}
+                      {t("estimated")} {vessel.estimated_trucks}{" "}
+                      {tCommon("trucks")}
                     </div>
                   </div>
                 ))}

@@ -171,7 +171,8 @@
     "driver": "driver",
     "drivers": "drivers",
     "totalPermits": "Total permits",
-    "search": "Search"
+    "search": "Search",
+    "status": "Status"
   },
   "permitDetail": {
     "title": "Permit Details",
