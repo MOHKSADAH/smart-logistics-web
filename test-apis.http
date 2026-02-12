@@ -1,0 +1,239 @@
+# Smart Logistics API Testing
+# Use REST Client extension in VS Code or copy to Postman
+# Base URL: http://localhost:3000 (or your dev server port)
+
+@baseUrl = http://localhost:54112
+@orgSession = ### Set after login ###
+
+### ========================================
+### SETUP: Check Server is Running
+### ========================================
+GET {{baseUrl}}/
+
+### ========================================
+### 1. ORGANIZATION AUTHENTICATION
+### ========================================
+
+### 1.1 Organization Login
+POST {{baseUrl}}/api/org/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@smsa.com",
+  "password": "demo1234"
+}
+
+### 1.2 Check Session (after login, with cookies)
+GET {{baseUrl}}/api/org/auth/login
+
+### 1.3 Logout
+DELETE {{baseUrl}}/api/org/auth/login
+
+### ========================================
+### 2. ORGANIZATION - DRIVERS
+### ========================================
+
+### 2.1 List Organization Drivers
+GET {{baseUrl}}/api/org/drivers
+
+### 2.2 Register New Driver
+POST {{baseUrl}}/api/org/drivers/register
+Content-Type: application/json
+
+{
+  "name": "Ahmed Al-Salem",
+  "phone": "+966501234567",
+  "license_number": "12345678",
+  "vehicle_plate": "ABC-1234",
+  "vehicle_type": "TRUCK_10TON",
+  "has_smartphone": true,
+  "prefers_sms": false
+}
+
+### ========================================
+### 3. ORGANIZATION - JOBS
+### ========================================
+
+### 3.1 List All Jobs
+GET {{baseUrl}}/api/org/jobs
+
+### 3.2 List Jobs with Filters
+GET {{baseUrl}}/api/org/jobs?status=PENDING&date=2026-02-13
+
+### 3.3 Create New Job (Peak Time - Should Show Vessel Warning)
+POST {{baseUrl}}/api/org/jobs/create
+Content-Type: application/json
+
+{
+  "customer_name": "ABC Trading Company",
+  "container_number": "CONT12345",
+  "container_count": 20,
+  "cargo_type": "STANDARD",
+  "pickup_location": "Dammam Port - Gate 3",
+  "destination": "Riyadh Industrial Area",
+  "preferred_date": "2026-02-13",
+  "preferred_time": "10:00",
+  "notes": "Fragile items, handle with care"
+}
+
+### 3.4 Create Job (Night Time - Should NOT Show Warning)
+POST {{baseUrl}}/api/org/jobs/create
+Content-Type: application/json
+
+{
+  "customer_name": "XYZ Logistics",
+  "container_count": 10,
+  "cargo_type": "BULK",
+  "pickup_location": "Dammam Port - Gate 5",
+  "destination": "Jeddah",
+  "preferred_date": "2026-02-13",
+  "preferred_time": "22:00",
+  "notes": "Night delivery"
+}
+
+### 3.5 Assign Driver to Job (Manual)
+POST {{baseUrl}}/api/org/jobs/[job-id-here]/assign
+Content-Type: application/json
+
+{
+  "driver_id": "[driver-id-here]"
+}
+
+### 3.6 Auto-Assign Driver to Job
+POST {{baseUrl}}/api/org/jobs/[job-id-here]/auto-assign
+Content-Type: application/json
+
+{}
+
+### 3.7 Track Job Progress
+GET {{baseUrl}}/api/org/jobs/[job-id-here]/track
+
+### ========================================
+### 4. DRIVER APIS (Legacy/Current)
+### ========================================
+
+### 4.1 List All Drivers
+GET {{baseUrl}}/api/drivers
+
+### 4.2 Get Driver Details
+GET {{baseUrl}}/api/drivers/[driver-id]
+
+### 4.3 Register Driver (Legacy - May be duplicate)
+POST {{baseUrl}}/api/drivers/register
+Content-Type: application/json
+
+{
+  "name": "Mohammed Hassan",
+  "phone": "+966507654321",
+  "license_number": "87654321",
+  "vehicle_plate": "XYZ-9876",
+  "vehicle_type": "TRUCK_20TON"
+}
+
+### ========================================
+### 5. DRIVER JOB MANAGEMENT (MISSING - NEED TO IMPLEMENT)
+### ========================================
+
+### 5.1 Get Active Jobs for Driver (MISSING)
+GET {{baseUrl}}/api/driver/jobs/active
+Authorization: Bearer [supabase-token]
+
+### 5.2 Complete Job (MISSING)
+POST {{baseUrl}}/api/driver/jobs/[job-id]/complete
+Authorization: Bearer [supabase-token]
+Content-Type: application/json
+
+{
+  "completion_notes": "Delivered successfully, signed by warehouse manager"
+}
+
+### ========================================
+### 6. PERMITS (Legacy System)
+### ========================================
+
+### 6.1 List Permits
+GET {{baseUrl}}/api/permits?driver_id=[driver-id]
+
+### 6.2 Book Permit (Legacy - May be deprecated)
+POST {{baseUrl}}/api/book
+Content-Type: application/json
+
+{
+  "driver_id": "[driver-id]",
+  "slot_id": "[slot-id]",
+  "vehicle_plate": "ABC-1234",
+  "cargo_type": "STANDARD",
+  "destination": "Riyadh"
+}
+
+### 6.3 Cancel Permit
+POST {{baseUrl}}/api/cancel
+Content-Type: application/json
+
+{
+  "permit_id": "[permit-id]",
+  "reason": "Plans changed"
+}
+
+### ========================================
+### 7. TIME SLOTS
+### ========================================
+
+### 7.1 Get Available Slots
+GET {{baseUrl}}/api/slots?date=2026-02-13&status=AVAILABLE
+
+### 7.2 Get Slots for Specific Date
+GET {{baseUrl}}/api/slots?date=2026-02-14
+
+### ========================================
+### 8. TRAFFIC & LOCATIONS
+### ========================================
+
+### 8.1 Submit Traffic Update (Team 3 AI)
+POST {{baseUrl}}/api/traffic
+Content-Type: application/json
+
+{
+  "camera_id": "CAM_01_KING_ABDULAZIZ",
+  "timestamp": "2026-02-12T14:30:00Z",
+  "status": "CONGESTED",
+  "vehicle_count": 150,
+  "truck_count": 12
+}
+
+### 8.2 Submit GPS Location
+POST {{baseUrl}}/api/locations
+Content-Type: application/json
+
+{
+  "driver_id": "[driver-id]",
+  "latitude": 26.3927,
+  "longitude": 50.0888,
+  "speed": 45.5,
+  "heading": 180,
+  "timestamp": "2026-02-12T14:30:00Z"
+}
+
+### ========================================
+### 9. REFERENCE DATA
+### ========================================
+
+### 9.1 Get Priority Rules
+GET {{baseUrl}}/api/priority-rules
+
+### ========================================
+### 10. UTILITY ENDPOINTS
+### ========================================
+
+### 10.1 Seed Test Traffic Data
+POST {{baseUrl}}/api/seed-traffic
+
+### ========================================
+### MISSING ENDPOINTS (Need to implement)
+### ========================================
+
+# ❌ GET /api/vessels/upcoming - Vessel schedules
+# ❌ GET /api/analytics/daily - Daily analytics
+# ❌ GET /api/driver/jobs/active - Driver's assigned jobs
+# ❌ POST /api/driver/jobs/[id]/complete - Complete job
+# ❌ GET /api/org/jobs/[id]/track - Track job (exists but needs testing)
