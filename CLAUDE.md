@@ -9,27 +9,52 @@ Project: Dammam Urban Development Challenge 2025 - Challenge #2
 Timeline: 4-day hackathon (February 2026)
 Tech Stack: Next.js 16, Supabase (PostgreSQL), TypeScript, Tailwind CSS
 
+## ⚡ MAJOR ARCHITECTURAL UPDATE (Feb 2026)
+
+**NEW PARADIGM: Organization-Based Job Management**
+
+❌ **OLD**: Individual drivers book permits themselves
+✅ **NEW**: Logistics companies create jobs → assign drivers → permits auto-generated
+
+**Key Innovation**: Vessel-driven congestion prediction
+- Vessels arrive early morning (7-9am)
+- Containers ready 2-4 hours later
+- Creates 10am-2pm truck surge
+- **Solution**: Predict vessel impact, warn companies, spread loads to night shifts (24/7 operation)
+
 ## Project Mission
 
-Build an AI-powered traffic management system that reduces port-related truck congestion on King Abdulaziz Road (Dammam) by 30-40% using priority-aware dynamic permit management.
+Build an AI-powered traffic management system that reduces port-related truck congestion on King Abdulaziz Road (Dammam) by 30-40% using priority-aware dynamic permit management with vessel schedule integration.
 
-The Problem: 1,260 trucks per day to Dammam seaport cause massive traffic congestion. Current system treats all trucks equally regardless of cargo urgency.
+**The Problem**:
+- 1,260 trucks per day to Dammam seaport cause massive traffic congestion
+- Vessel arrivals drive predictable 10am-2pm truck surges
+- Current system treats all trucks equally regardless of cargo urgency
 
-The Solution: AI cameras detect traffic → Backend prioritizes permits → Urgent cargo (medical, food) NEVER delayed → Regular cargo rescheduled during congestion.
+**The Solution**:
+- Organizations (SMSA, Aramex, Naqel) create delivery jobs
+- System predicts congestion from vessel schedules
+- Auto-assigns time slots avoiding vessel-driven surges
+- Priority protection: EMERGENCY cargo NEVER delayed
+- Night shift incentives to spread load across 24 hours
 
 ## System Architecture
 
 ```
-[Traffic Camera] → [Team 3: AI/YOLO] → POST /api/traffic → [Backend]
-                                                              ↓
-                                                     [Priority Logic]
-                                                              ↓
-                                        [Permit Management] ← [Team 2: Mobile App]
+[Vessel Arrives 8am] → [Containers Ready 10am] → [Truck Surge Predicted]
+                                                           ↓
+[Organization Dashboard] → Create Job → Assign Driver → [Auto-generate Permit]
+                                                           ↓
+                                            [Traffic Camera: AI/YOLO] → Detect Congestion
+                                                           ↓
+                                            [Priority Logic: Protect EMERGENCY]
+                                                           ↓
+                                            [Driver Mobile App: Receives Job]
 ```
 
 Three Teams:
-- Team 1 (Backend & Dashboard): Backend APIs + Admin Dashboard
-- Team 2 (Mobile App): React Native driver mobile app (consumes our APIs)
+- Team 1 (Backend & Dashboard): Backend APIs + Admin Dashboard + Organization Portal
+- Team 2 (Mobile App): React Native driver mobile app (receives job assignments)
 - Team 3 (AI/Computer Vision): Python + YOLO (sends traffic data to our backend)
 
 ## Core Innovation: Priority System
@@ -50,53 +75,143 @@ Traffic Status Response:
 
 ## Database Schema (Supabase PostgreSQL)
 
-Core Tables (Full schema in spec pages 19-28):
+Core Tables (Organization-Based System):
 
-1. drivers - User accounts (phone auth)
-2. time_slots - Bookable 2-hour windows with capacity
-3. permits - Truck permits with priority and QR codes
-4. priority_rules - Priority tier definitions
-5. traffic_updates - AI camera data feed
-6. vessel_schedules - Port ship arrivals
-7. traffic_predictions - Forecast congestion
-8. driver_locations - GPS tracking
-9. notifications - Push notification log
+1. **organizations** - Logistics companies (SMSA, Aramex, Naqel)
+2. **drivers** - Linked to organizations, receive job assignments
+3. **jobs** - Shipment assignments created by organizations
+4. **permits** - Auto-generated when job is assigned to driver
+5. **time_slots** - 24/7 bookable windows (capacity adjusted by vessels)
+6. **vessel_schedules** - Port ship arrivals (drives congestion prediction)
+7. **priority_rules** - Priority tier definitions
+8. **traffic_updates** - AI camera data feed
+9. **driver_locations** - GPS tracking
+10. **notifications** - Push notification log
 
-Critical Database Function (page 24):
+Critical Database Functions:
 ```sql
+-- Auto-generate human-readable permit codes
+generate_permit_code() → 'P-20260210-1234'
+
+-- Map cargo type to priority level
+get_priority_from_cargo('PERISHABLE') → 'EMERGENCY'
+
+-- Adjust slot capacity based on vessel arrivals
+adjust_slot_capacity_for_vessels()
+-- Reduces capacity 10am-2pm when vessels arrive 8am
+
+-- Find best available slot matching preferences
+find_best_slot(date, time, priority) → slot_id
+
+-- Halt low-priority permits during congestion
 halt_permits_by_priority(traffic_status text)
 -- When CONGESTED: halt NORMAL & LOW, protect EMERGENCY & ESSENTIAL
 ```
 
-## API Endpoints (All Complete and Tested)
+## API Endpoints
 
-### Core Endpoints - Team Integration
+### Organization Portal (NEW - Core Workflow)
 
-POST /api/traffic (Team 3: AI/YOLO)
-Receives traffic updates from AI camera system. Triggers permit halting when CONGESTED.
+**POST /api/org/auth/login**
+Organization login with email/password (session-based auth)
 
-GET /api/slots?date=YYYY-MM-DD (Team 2: Mobile)
-Returns available time slots for booking with traffic predictions.
+**GET /api/org/drivers**
+List company's drivers with availability status
 
-POST /api/book (Team 2: Mobile)
-Books a permit for a driver with QR code generation.
+**POST /api/org/drivers/register**
+Register new driver for the organization
 
-GET /api/permits?driver_id=UUID (Team 2: Mobile)
-Returns all permits for a driver with full details.
+**POST /api/org/jobs/create** (CRITICAL)
+Create delivery job → Returns vessel warning + available drivers
+- Shows: "⚠️ 3 vessels arriving tomorrow, 560 trucks expected 10am-4pm"
+- Suggests: Alternative time slots (night shifts, off-peak)
 
-POST /api/locations (Team 2: Mobile)
-Records driver GPS location updates.
+**POST /api/org/jobs/{job_id}/assign** (MOST CRITICAL)
+Assign driver to job → Auto-generates permit
+- Finds best available slot
+- Creates permit with QR code + permit code
+- Sends notification (app or SMS based on driver.has_smartphone)
+- Returns permit details and delivery method
 
-### Enhanced Endpoints - Dashboard and Predictions
+**GET /api/org/jobs**
+List jobs with filters (status, date, priority)
 
-GET /api/vessels - Vessel schedule display
-GET /api/predict?hours=N - Traffic prediction
-GET /api/slots/alternatives - Suggest reschedule options
-POST /api/permits/reschedule - One-tap rebooking
-GET /api/analytics/daily - Dashboard charts
-GET /api/priority-rules - Priority tier definitions
+**GET /api/org/jobs/{job_id}/track**
+Track job progress (driver location, permit status, timeline)
 
-Full API specifications: Pages 49-52 (Appendix A of Traffic_Control_System2.pdf)
+**POST /api/org/jobs/{job_id}/auto-assign** ⚡ NEW (Feb 12, 2026)
+Auto-assign best available driver → Creates permit in one click
+- Finds best available driver (first active & available)
+- Calls find_best_slot() to get optimal time
+- Generates permit with QR code
+- Marks driver as unavailable
+- Sends notification (SMS or App)
+- Returns: driver details, permit code, notification method
+
+### Driver Mobile App (Modified for Job System)
+
+**GET /api/driver/jobs/active**
+Get assigned jobs with permit details (replaces individual booking)
+
+**POST /api/driver/jobs/{job_id}/complete**
+Mark job as completed
+
+**POST /api/locations**
+Record GPS location updates
+
+### Admin Dashboard
+
+**GET /api/traffic** (Team 3: AI/YOLO)
+Receives traffic updates from AI camera system
+
+**GET /api/vessels/upcoming**
+Vessel schedules with truck surge predictions
+
+**GET /api/analytics/daily**
+Dashboard charts (permits by organization, compliance rates)
+
+**All existing endpoints** (permits, slots, drivers) remain functional
+
+## 🆕 Latest Updates (Feb 12, 2026)
+
+### Performance Optimizations
+**Login Endpoint** - Reduced from 2 DB calls to 1:
+- Before: Fetch org + verify password (2 round-trips)
+- After: Single query with .eq('is_active', true) + password check
+- Result: ~50% faster login
+
+**Job Creation Endpoint** - Parallel queries:
+- Before: Sequential queries for drivers + vessels (2+ round-trips)
+- After: Promise.all([drivers, vessels]) - fetched in parallel
+- Result: ~40% faster job creation
+
+### Auto-Assign Feature ⚡
+**Location**: Jobs list + Job creation page
+- Jobs List: "Auto-Assign" button appears for PENDING jobs
+- Job Creation: Big blue "🚀 Auto-Assign Best Driver" button after creating job
+- One-click operation: Finds driver + creates permit + sends notification
+- Manual selection still available as fallback
+
+### Arabic Language Support 🌍
+**Scope**: Login page + Navigation bar
+- Toggle button: "العربية" / "English"
+- URL parameter: `?lang=ar` or `?lang=en`
+- RTL layout when Arabic selected
+- Translations: Login page, nav labels (Dashboard, Jobs, Drivers, Logout)
+- Language persists across pages via URL param
+
+### Loading Skeletons
+**Pages with skeletons**:
+- `/org` - Dashboard loading state
+- `/org/jobs` - Jobs list loading state
+- `/org/drivers` - Drivers list loading state
+- Smooth transitions, no blank screens
+
+### UI/UX Improvements
+- Suspense boundaries for useSearchParams (no hydration errors)
+- Tailwind v4 syntax (bg-linear-to-br)
+- Optimized form handling
+- Auto-refresh after actions (router.refresh())
 
 ## Tech Stack Details
 
