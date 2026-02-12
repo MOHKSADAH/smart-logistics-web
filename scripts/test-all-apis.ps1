@@ -2,7 +2,7 @@
 # Tests all API endpoints systematically
 # Run: ./scripts/test-all-apis.ps1
 
-$baseUrl = "http://localhost:54112"
+$baseUrl = "http://localhost:3000"
 $testResults = @()
 
 Write-Host "======================================" -ForegroundColor Cyan

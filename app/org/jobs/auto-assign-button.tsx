@@ -1,41 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Zap } from "lucide-react";
+import { getOrgTranslation, type Locale } from "@/lib/org-i18n";
 
 export function AutoAssignButton({ jobId }: { jobId: string }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const locale = (searchParams.get("lang") as Locale) || "en";
+  const [isPending, startTransition] = useTransition();
 
-  const handleAutoAssign = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/org/jobs/${jobId}/auto-assign`, {
-        method: "POST",
-      });
+  const t = (key: keyof typeof import("@/lib/org-i18n").orgTranslations.en) =>
+    getOrgTranslation(locale, key);
 
-      const data = await response.json();
+  const handleAutoAssign = () => {
+    startTransition(async () => {
+      try {
+        toast.loading(t("autoAssigning"));
 
-      if (data.success) {
+        const response = await fetch(`/api/org/jobs/${jobId}/auto-assign`, {
+          method: "POST",
+        });
+
+        const data = await response.json();
+
+        toast.dismiss();
+
+        if (!response.ok || !data.success) {
+          toast.error(data.error || "Auto-assign failed");
+          return;
+        }
+
+        toast.success(`Assigned to ${data.driver.name}`);
         router.refresh();
-      } else {
-        alert(data.error || "Auto-assign failed");
+      } catch (error) {
+        toast.dismiss();
+        console.error("Auto-assign error:", error);
+        toast.error("Failed to auto-assign");
       }
-    } catch (error) {
-      alert("Error: " + error);
-    }
-    setLoading(false);
+    });
   };
 
   return (
     <Button
       onClick={handleAutoAssign}
-      disabled={loading}
+      disabled={isPending}
       size="sm"
-      variant="default"
+      variant="secondary"
     >
-      {loading ? "Assigning..." : "Auto-Assign"}
+      <Zap className="h-3 w-3 me-1" />
+      {isPending ? t("autoAssigning") : t("autoAssign")}
     </Button>
   );
 }

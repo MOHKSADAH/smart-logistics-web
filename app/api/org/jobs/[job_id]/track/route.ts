@@ -14,25 +14,33 @@ async function getOrgSession() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ job_id: string }> }
+  { params }: { params: Promise<{ job_id: string }> },
 ) {
   try {
     // Check authentication
     const session = await getOrgSession();
     if (!session) {
+      console.log("[Track Route] No session found");
       return NextResponse.json(
         { success: false, error: "Not authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { job_id } = await params;
+    console.log(
+      "[Track Route] Fetching job:",
+      job_id,
+      "for org:",
+      session.organization_id,
+    );
     const supabase = getServerSupabaseClient();
 
     // Fetch job with all related data
     const { data: job, error } = await supabase
       .from("jobs")
-      .select(`
+      .select(
+        `
         *,
         driver:drivers!assigned_driver_id (
           id,
@@ -49,7 +57,7 @@ export async function GET(
           priority,
           approved_at,
           halted_at,
-          slot:time_slots (
+          slot:time_slots!permits_slot_id_fkey (
             id,
             date,
             start_time,
@@ -59,17 +67,25 @@ export async function GET(
             predicted_traffic
           )
         )
-      `)
+      `,
+      )
       .eq("id", job_id)
       .eq("organization_id", session.organization_id)
       .single();
 
     if (error || !job) {
+      console.log("[Track Route] Job not found:", {
+        error,
+        job_id,
+        error_message: error?.message,
+      });
       return NextResponse.json(
         { success: false, error: "Job not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
+
+    console.log("[Track Route] Job found:", job.job_number);
 
     // Get driver's latest location if assigned
     let currentLocation = null;
@@ -104,7 +120,9 @@ export async function GET(
 
     if (job.assigned_at) {
       timeline.push({
-        event: job.driver ? `Driver Assigned: ${job.driver.name}` : "Driver Assigned",
+        event: job.driver
+          ? `Driver Assigned: ${job.driver.name}`
+          : "Driver Assigned",
         timestamp: job.assigned_at,
         status: "completed",
       });
@@ -145,40 +163,49 @@ export async function GET(
           created_at: job.created_at,
           assigned_at: job.assigned_at,
           completed_at: job.completed_at,
+          preferred_date: job.preferred_date,
+          preferred_time: job.preferred_time,
+          updated_at: job.updated_at,
         },
-        driver: job.driver ? {
-          id: job.driver.id,
-          name: job.driver.name,
-          phone: job.driver.phone,
-          vehicle_plate: job.driver.vehicle_plate,
-          vehicle_type: job.driver.vehicle_type,
-          current_location: currentLocation,
-        } : null,
-        permit: job.permit ? {
-          id: job.permit.id,
-          qr_code: job.permit.qr_code,
-          permit_code: job.permit.permit_code,
-          status: job.permit.status,
-          priority: job.permit.priority,
-          slot: job.permit.slot ? {
-            date: job.permit.slot.date,
-            start_time: job.permit.slot.start_time,
-            end_time: job.permit.slot.end_time,
-            predicted_traffic: job.permit.slot.predicted_traffic,
-          } : null,
-        } : null,
+        driver: job.driver
+          ? {
+              id: job.driver.id,
+              name: job.driver.name,
+              phone: job.driver.phone,
+              vehicle_plate: job.driver.vehicle_plate,
+              vehicle_type: job.driver.vehicle_type,
+              current_location: currentLocation,
+            }
+          : null,
+        permit: job.permit
+          ? {
+              id: job.permit.id,
+              qr_code: job.permit.qr_code,
+              permit_code: job.permit.permit_code,
+              status: job.permit.status,
+              priority: job.permit.priority,
+              slot: job.permit.slot
+                ? {
+                    date: job.permit.slot.date,
+                    start_time: job.permit.slot.start_time,
+                    end_time: job.permit.slot.end_time,
+                    predicted_traffic: job.permit.slot.predicted_traffic,
+                  }
+                : null,
+            }
+          : null,
         timeline,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
-    console.error("Job tracking API error:", error);
+    console.error("[Track Route] Error:", error);
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

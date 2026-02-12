@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
+import { LocaleWrapper } from "./locale-wrapper";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -38,15 +39,13 @@ export default async function LocaleLayout({
   const direction = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={direction}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <LocaleWrapper locale={locale} direction={direction}>
+      <div className={`${geistSans.variable} ${geistMono.variable}`}>
         <NextIntlClientProvider messages={messages}>
           {children}
           <Toaster />
         </NextIntlClientProvider>
-      </body>
-    </html>
+      </div>
+    </LocaleWrapper>
   );
 }

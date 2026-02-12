@@ -58,18 +58,18 @@ export async function GET(request: NextRequest) {
         preferred_time,
         notes,
         created_at,
-        organization:organizations(
+        organization:organizations!organization_id(
           id,
           name,
           contact_phone,
           contact_email
         ),
-        permit:permits(
+        permit:permits!permit_id(
           id,
           permit_code,
           qr_code,
           status,
-          time_slot:time_slots(
+          time_slot:time_slots!time_slot_id(
             id,
             date,
             start_time,
@@ -114,29 +114,29 @@ export async function GET(request: NextRequest) {
       created_at: job.created_at,
 
       // Permit details (may be null if not yet generated)
-      permit: job.permit
+      permit: job.permit && Array.isArray(job.permit) && job.permit[0]
         ? {
-            permit_id: job.permit.id,
-            permit_code: job.permit.permit_code,
-            qr_code: job.permit.qr_code,
-            status: job.permit.status,
-            time_slot: job.permit.time_slot
+            permit_id: job.permit[0].id,
+            permit_code: job.permit[0].permit_code,
+            qr_code: job.permit[0].qr_code,
+            status: job.permit[0].status,
+            time_slot: job.permit[0].time_slot && Array.isArray(job.permit[0].time_slot) && job.permit[0].time_slot[0]
               ? {
-                  date: job.permit.time_slot.date,
-                  start_time: job.permit.time_slot.start_time,
-                  end_time: job.permit.time_slot.end_time,
-                  predicted_traffic: job.permit.time_slot.predicted_traffic,
+                  date: job.permit[0].time_slot[0].date,
+                  start_time: job.permit[0].time_slot[0].start_time,
+                  end_time: job.permit[0].time_slot[0].end_time,
+                  predicted_traffic: job.permit[0].time_slot[0].predicted_traffic,
                 }
               : null,
           }
         : null,
 
       // Organization details
-      organization: job.organization
+      organization: job.organization && Array.isArray(job.organization) && job.organization[0]
         ? {
-            name: job.organization.name,
-            contact_phone: job.organization.contact_phone,
-            contact_email: job.organization.contact_email,
+            name: job.organization[0].name,
+            contact_phone: job.organization[0].contact_phone,
+            contact_email: job.organization[0].contact_email,
           }
         : null,
     }));

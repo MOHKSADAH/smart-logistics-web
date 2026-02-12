@@ -1,19 +1,27 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type { Metadata } from "next";
+import { Geist } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'Smart Logistics & Truck Management System',
-  description: 'AI-powered traffic management for Dammam Port - Team 1 Backend & Dashboard',
-}
+  title: "PORTA - Smart Logistics",
+  description: "Traffic management system for Dammam Port",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={`${geistSans.variable} antialiased`}>
+        {children}
+      </body>
     </html>
-  )
+  );
 }

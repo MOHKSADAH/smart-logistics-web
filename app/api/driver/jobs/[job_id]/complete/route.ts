@@ -60,7 +60,7 @@ export async function POST(
     // 1. Get job details to verify it exists and get driver_id
     const { data: job, error: jobFetchError } = await supabase
       .from("jobs")
-      .select("id, job_number, status, assigned_driver_id, permit_id")
+      .select("id, job_number, status, assigned_driver_id, permit_id, notes")
       .eq("id", job_id)
       .single();
 

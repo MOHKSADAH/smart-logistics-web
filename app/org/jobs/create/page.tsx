@@ -1,15 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { getOrgTranslation, type Locale } from "@/lib/org-i18n";
+import { toast } from "sonner";
+import { Database, Loader2, CheckCircle, Package } from "lucide-react";
 
-export default function CreateJobPage() {
+function CreateJobContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = (searchParams.get("lang") as Locale) || "en";
+  const t = (key: keyof typeof import("@/lib/org-i18n").orgTranslations.en) => getOrgTranslation(locale, key);
   const [formData, setFormData] = useState({
     customer_name: "",
     container_number: "",
@@ -27,6 +42,64 @@ export default function CreateJobPage() {
   const [vesselWarning, setVesselWarning] = useState<any>(null);
   const [jobId, setJobId] = useState("");
   const [availableDrivers, setAvailableDrivers] = useState<any[]>([]);
+
+  // Import dialog state
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importedData, setImportedData] = useState<any>(null);
+
+  const demoCompanies = ["SMSA Express", "Aramex", "Naqel Express", "DHL Saudi Arabia", "FedEx KSA"];
+  const demoContainers = ["MSCU", "CSNU", "TEMU", "OOLU", "HLBU"];
+
+  const fetchFromDatabase = async () => {
+    setImportDialogOpen(true);
+    setImportLoading(true);
+    setImportedData(null);
+
+    // Simulate fetching from database with delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const randomCompany = demoCompanies[Math.floor(Math.random() * demoCompanies.length)];
+    const randomContainer = demoContainers[Math.floor(Math.random() * demoContainers.length)];
+    const containerNum = `${randomContainer}${Math.floor(Math.random() * 9000000) + 1000000}`;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const fetchedData = {
+      customer_name: randomCompany,
+      container_number: containerNum,
+      container_count: Math.floor(Math.random() * 3) + 1,
+      cargo_type: ["PERISHABLE", "MEDICAL", "TIME_SENSITIVE", "STANDARD", "BULK"][Math.floor(Math.random() * 5)],
+      pickup_location: "Dammam Port",
+      destination: ["Riyadh Logistics Hub", "Jeddah Distribution Center", "Al Khobar Warehouse", "Dhahran Industrial Zone"][Math.floor(Math.random() * 4)],
+      preferred_date: tomorrow.toISOString().split('T')[0],
+      preferred_time: ["06:00", "08:00", "10:00", "14:00", "16:00", "18:00"][Math.floor(Math.random() * 6)],
+      notes: `Imported from permit database - Permit #${Math.floor(Math.random() * 90000) + 10000}`,
+      source_system: "SMSA Logistics Database",
+      import_timestamp: new Date().toISOString(),
+    };
+
+    setImportedData(fetchedData);
+    setImportLoading(false);
+  };
+
+  const importData = () => {
+    if (importedData) {
+      setFormData({
+        customer_name: importedData.customer_name,
+        container_number: importedData.container_number,
+        container_count: importedData.container_count,
+        cargo_type: importedData.cargo_type,
+        pickup_location: importedData.pickup_location,
+        destination: importedData.destination,
+        preferred_date: importedData.preferred_date,
+        preferred_time: importedData.preferred_time,
+        notes: importedData.notes,
+      });
+      setImportDialogOpen(false);
+      toast.success("Data imported successfully!");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +139,7 @@ export default function CreateJobPage() {
       const data = await response.json();
 
       if (data.success) {
-        router.push(`/org/jobs?success=Auto-assigned to ${data.driver.name} - ${data.permit.permit_code}`);
+        router.push(`/org/jobs?lang=${locale}&success=Auto-assigned to ${data.driver.name} - ${data.permit.permit_code}`);
       } else {
         setError(data.error);
       }
@@ -88,7 +161,7 @@ export default function CreateJobPage() {
       const data = await response.json();
 
       if (data.success) {
-        router.push(`/org/jobs?success=Job assigned - ${data.permit.permit_code}`);
+        router.push(`/org/jobs?lang=${locale}&success=Job assigned - ${data.permit.permit_code}`);
       } else {
         setError(data.error);
       }
@@ -100,23 +173,23 @@ export default function CreateJobPage() {
 
   if (jobId && availableDrivers.length > 0) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6" dir={locale === "ar" ? "rtl" : "ltr"}>
         {vesselWarning && (
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-            <p className="font-semibold text-yellow-900">{vesselWarning.message}</p>
+          <div className="bg-accent/50 border-2 border-border rounded-lg p-4">
+            <p className="font-semibold text-foreground">{vesselWarning.message}</p>
             <div className="mt-2">
-              <p className="text-sm text-yellow-800">Vessels arriving:</p>
-              <ul className="text-sm text-yellow-800">
+              <p className="text-sm text-muted-foreground">{t("vesselWarningLabel")}</p>
+              <ul className="text-sm text-muted-foreground">
                 {vesselWarning.vessels.map((v: any, i: number) => (
-                  <li key={i}>• {v.name} at {v.arrival_time} ({v.estimated_trucks} trucks)</li>
+                  <li key={i}>• {v.name} {t("at")} {v.arrival_time} ({v.estimated_trucks} {t("trucks")})</li>
                 ))}
               </ul>
               {vesselWarning.suggested_alternatives?.length > 0 && (
                 <div className="mt-2">
-                  <p className="text-sm text-yellow-800 font-semibold">Suggested times:</p>
-                  <ul className="text-sm text-yellow-800">
+                  <p className="text-sm text-foreground font-semibold">{t("suggestedTimes")}</p>
+                  <ul className="text-sm text-muted-foreground">
                     {vesselWarning.suggested_alternatives.map((alt: any, i: number) => (
-                      <li key={i}>• {alt.time} ({alt.available} slots, {alt.traffic} traffic)</li>
+                      <li key={i}>• {alt.time} ({alt.available} {t("slots")}, {alt.traffic} {t("traffic")})</li>
                     ))}
                   </ul>
                 </div>
@@ -127,35 +200,35 @@ export default function CreateJobPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Select Driver</CardTitle>
-            <CardDescription>Choose a driver to assign this job or use auto-assign</CardDescription>
+            <CardTitle>{t("selectDriver")}</CardTitle>
+            <CardDescription>{t("selectDriverDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-900 mb-2">Let the system automatically pick the best available driver:</p>
+            <div className="mb-4 p-4 bg-muted/50 border rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">{t("selectDriverDesc")}</p>
               <Button onClick={handleAutoAssign} disabled={loading} className="w-full">
-                {loading ? "Auto-Assigning..." : "🚀 Auto-Assign Best Driver"}
+                {loading ? t("autoAssigning") : t("autoAssignBestDriver")}
               </Button>
             </div>
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or manually select</span>
+                <span className="px-2 bg-card text-muted-foreground">{t("orManuallySelect")}</span>
               </div>
             </div>
 
             <div className="space-y-4">
               {availableDrivers.map((driver) => (
-                <div key={driver.id} className="flex justify-between items-center p-4 border rounded hover:bg-gray-50">
+                <div key={driver.id} className="flex justify-between items-center p-4 border rounded hover:bg-accent transition-colors">
                   <div>
-                    <p className="font-semibold">{driver.name}</p>
-                    <p className="text-sm text-gray-600">{driver.vehicle_plate} - {driver.vehicle_type}</p>
-                    <p className="text-sm text-gray-500">{driver.phone}</p>
+                    <p className="font-semibold text-foreground">{driver.name}</p>
+                    <p className="text-sm text-muted-foreground">{driver.vehicle_plate} - {driver.vehicle_type}</p>
+                    <p className="text-sm text-muted-foreground">{driver.phone}</p>
                   </div>
-                  <Button onClick={() => handleAssign(driver.id)}>Assign</Button>
+                  <Button onClick={() => handleAssign(driver.id)}>{t("assign")}</Button>
                 </div>
               ))}
             </div>
@@ -166,16 +239,111 @@ export default function CreateJobPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto" dir={locale === "ar" ? "rtl" : "ltr"}>
+      {/* Import Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Import from Permit Database
+            </DialogTitle>
+            <DialogDescription>
+              Fetching shipment data from SMSA logistics system...
+            </DialogDescription>
+          </DialogHeader>
+
+          {importLoading ? (
+            <div className="py-12 flex flex-col items-center justify-center gap-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Connecting to database...</p>
+              <p className="text-xs text-muted-foreground">Retrieving permit records...</p>
+            </div>
+          ) : importedData ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded">
+                <CheckCircle className="h-4 w-4" />
+                <span>Successfully fetched 1 record from {importedData.source_system}</span>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                <div className="flex items-center gap-2 pb-2 border-b">
+                  <Package className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm">Shipment Details</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Customer</p>
+                    <p className="font-medium">{importedData.customer_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Container</p>
+                    <p className="font-mono text-xs">{importedData.container_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Cargo Type</p>
+                    <Badge variant="outline">{importedData.cargo_type}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Count</p>
+                    <p className="font-medium">{importedData.container_count} containers</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">From</p>
+                    <p className="text-xs">{importedData.pickup_location}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">To</p>
+                    <p className="text-xs">{importedData.destination}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Preferred Date</p>
+                    <p className="text-xs">{importedData.preferred_date}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Preferred Time</p>
+                    <p className="text-xs">{importedData.preferred_time}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-muted-foreground">{importedData.notes}</p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)} disabled={importLoading}>
+              Cancel
+            </Button>
+            {importedData && (
+              <Button onClick={importData}>
+                Import Data
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader>
-          <CardTitle>Create New Job</CardTitle>
-          <CardDescription>Create a delivery job and assign it to a driver</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>{t("createNewJob")}</CardTitle>
+              <CardDescription>{t("createJobDesc")}</CardDescription>
+            </div>
+            <Button variant="outline" onClick={fetchFromDatabase} type="button" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Import from Database
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label>Customer Name *</Label>
+              <Label>{t("customerName")} {t("required")}</Label>
               <Input
                 value={formData.customer_name}
                 onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
@@ -185,14 +353,14 @@ export default function CreateJobPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Container Number</Label>
+                <Label>{t("containerNumber")}</Label>
                 <Input
                   value={formData.container_number}
                   onChange={(e) => setFormData({ ...formData, container_number: e.target.value })}
                 />
               </div>
               <div>
-                <Label>Container Count</Label>
+                <Label>{t("containerCount")}</Label>
                 <Input
                   type="number"
                   min="1"
@@ -203,7 +371,7 @@ export default function CreateJobPage() {
             </div>
 
             <div>
-              <Label>Cargo Type *</Label>
+              <Label>{t("cargoType")} {t("required")}</Label>
               <Select
                 value={formData.cargo_type}
                 onValueChange={(v) => setFormData({ ...formData, cargo_type: v })}
@@ -212,18 +380,18 @@ export default function CreateJobPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PERISHABLE">Perishable (EMERGENCY)</SelectItem>
-                  <SelectItem value="MEDICAL">Medical (EMERGENCY)</SelectItem>
-                  <SelectItem value="TIME_SENSITIVE">Time Sensitive (ESSENTIAL)</SelectItem>
-                  <SelectItem value="STANDARD">Standard (NORMAL)</SelectItem>
-                  <SelectItem value="BULK">Bulk (LOW)</SelectItem>
+                  <SelectItem value="PERISHABLE">{t("PERISHABLE")} ({t("EMERGENCY")})</SelectItem>
+                  <SelectItem value="MEDICAL">{t("MEDICAL")} ({t("EMERGENCY")})</SelectItem>
+                  <SelectItem value="TIME_SENSITIVE">{t("TIME_SENSITIVE")} ({t("ESSENTIAL")})</SelectItem>
+                  <SelectItem value="STANDARD">{t("STANDARD")} ({t("NORMAL")})</SelectItem>
+                  <SelectItem value="BULK">{t("BULK")} ({t("LOW")})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Pickup Location *</Label>
+                <Label>{t("pickupLocation")} {t("required")}</Label>
                 <Input
                   value={formData.pickup_location}
                   onChange={(e) => setFormData({ ...formData, pickup_location: e.target.value })}
@@ -231,7 +399,7 @@ export default function CreateJobPage() {
                 />
               </div>
               <div>
-                <Label>Destination *</Label>
+                <Label>{t("destination")} {t("required")}</Label>
                 <Input
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
@@ -242,7 +410,7 @@ export default function CreateJobPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Preferred Date *</Label>
+                <Label>{t("preferredDate")} {t("required")}</Label>
                 <Input
                   type="date"
                   value={formData.preferred_date}
@@ -252,7 +420,7 @@ export default function CreateJobPage() {
                 />
               </div>
               <div>
-                <Label>Preferred Time *</Label>
+                <Label>{t("preferredTime")} {t("required")}</Label>
                 <Select
                   value={formData.preferred_time}
                   onValueChange={(v) => setFormData({ ...formData, preferred_time: v })}
@@ -272,17 +440,25 @@ export default function CreateJobPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 text-red-900">
+              <div className="bg-destructive/10 border-2 border-destructive/30 rounded-lg p-3 text-destructive">
                 {error}
               </div>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating..." : "Create Job"}
+              {loading ? t("creating") : t("submitJob")}
             </Button>
           </form>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function CreateJobPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto p-8 text-center">Loading...</div>}>
+      <CreateJobContent />
+    </Suspense>
   );
 }

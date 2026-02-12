@@ -32,12 +32,12 @@ function LayoutContent({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir={locale === "ar" ? "rtl" : "ltr"}>
-      <nav className="bg-white border-b px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-background" dir={locale === "ar" ? "rtl" : "ltr"}>
+      <nav className="border-b bg-card">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">{session.organization_name}</h1>
-            <p className="text-sm text-gray-600">{session.email}</p>
+            <h1 className="text-xl font-bold text-foreground">{session.organization_name}</h1>
+            <p className="text-sm text-muted-foreground">{session.email}</p>
           </div>
           <div className="flex gap-4 items-center">
             <Link href={`/org?lang=${locale}`}>

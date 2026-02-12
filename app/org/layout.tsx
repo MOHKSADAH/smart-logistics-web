@@ -1,13 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { Geist } from "next/font/google";
-import "../globals.css";
 import { OrgLayoutClient } from "./layout-client";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 async function getOrgSession() {
   const cookieStore = await cookies();
@@ -26,12 +19,8 @@ export default async function OrgLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} antialiased`}>
-        <OrgLayoutClient session={session}>
-          {children}
-        </OrgLayoutClient>
-      </body>
-    </html>
+    <OrgLayoutClient session={session}>
+      {children}
+    </OrgLayoutClient>
   );
 }

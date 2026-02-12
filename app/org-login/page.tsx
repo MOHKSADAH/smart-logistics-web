@@ -54,8 +54,8 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 p-4" dir={locale === "ar" ? "rtl" : "ltr"}>
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" dir={locale === "ar" ? "rtl" : "ltr"}>
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-bold">{t("loginTitle")}</CardTitle>
@@ -92,7 +92,7 @@ function LoginForm() {
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded">
                 {error}
               </div>
             )}
@@ -102,13 +102,40 @@ function LoginForm() {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded text-sm">
-            <p className="font-semibold mb-2">{t("demoCredentials")}:</p>
-            <ul className="space-y-1 text-gray-700">
-              <li>• <strong>SMSA Express:</strong> manager@smsa.com / demo1234</li>
-              <li>• <strong>Aramex:</strong> dispatch@aramex.com / demo1234</li>
-              <li>• <strong>Naqel Express:</strong> ops@naqel.com / demo1234</li>
-            </ul>
+          <div className="mt-6 p-4 bg-muted/50 border rounded text-sm">
+            <p className="font-semibold mb-2 text-foreground">{t("demoCredentials")}:</p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("manager@smsa.com");
+                  setPassword("demo1234");
+                }}
+                className="w-full text-left px-3 py-2 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <strong>SMSA Express:</strong> manager@smsa.com / demo1234
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("dispatch@aramex.com");
+                  setPassword("demo1234");
+                }}
+                className="w-full text-left px-3 py-2 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <strong>Aramex:</strong> dispatch@aramex.com / demo1234
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("ops@naqel.com");
+                  setPassword("demo1234");
+                }}
+                className="w-full text-left px-3 py-2 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <strong>Naqel Express:</strong> ops@naqel.com / demo1234
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>

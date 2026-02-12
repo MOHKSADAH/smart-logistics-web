@@ -30,10 +30,17 @@ export async function POST(
     // Get job details with single query
     const { data: job, error: jobError } = await supabase
       .from("jobs")
-      .select("*, organization_id, preferred_date, preferred_time, priority")
+      .select("*, organization_id, preferred_date, preferred_time, priority, cargo_type, job_number")
       .eq("id", job_id)
       .eq("organization_id", session.organization_id)
       .single();
+
+    console.log("[AUTO-ASSIGN] Job data:", {
+      id: job_id,
+      cargo_type: job?.cargo_type,
+      priority: job?.priority,
+      status: job?.status,
+    });
 
     if (jobError || !job) {
       return NextResponse.json(
@@ -115,19 +122,32 @@ export async function POST(
       .from("permits")
       .insert({
         driver_id: driver.id,
-        time_slot_id: slot_id,
+        slot_id: slot_id,
+        job_id: job_id,
         permit_code: permitCode || `P-${Date.now()}`,
         qr_code: qrCode,
         priority: job.priority,
         cargo_type: job.cargo_type,
         status: "APPROVED",
+        delivery_method: driver.has_smartphone && !driver.prefers_sms ? "APP" : "SMS",
       })
       .select()
       .single();
 
     if (permitError || !permit) {
+      console.error("[AUTO-ASSIGN] Permit creation failed:", {
+        error: permitError,
+        job_cargo_type: job.cargo_type,
+        job_priority: job.priority,
+        driver_id: driver.id,
+        slot_id: slot_id,
+      });
       return NextResponse.json(
-        { success: false, error: "Failed to create permit" },
+        {
+          success: false,
+          error: `Failed to create permit: ${permitError?.message || "Unknown error"}`,
+          details: permitError
+        },
         { status: 500 }
       );
     }
