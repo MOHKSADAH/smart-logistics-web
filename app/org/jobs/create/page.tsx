@@ -343,11 +343,11 @@ function CreateJobContent() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label>{t("customerName")} {t("required")}</Label>
+              <Label>{t("customerName")}</Label>
               <Input
                 value={formData.customer_name}
                 onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                required
+                placeholder="Customer name (optional)"
               />
             </div>
 
@@ -371,7 +371,7 @@ function CreateJobContent() {
             </div>
 
             <div>
-              <Label>{t("cargoType")} {t("required")}</Label>
+              <Label>{t("cargoType")}</Label>
               <Select
                 value={formData.cargo_type}
                 onValueChange={(v) => setFormData({ ...formData, cargo_type: v })}
@@ -391,36 +391,36 @@ function CreateJobContent() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>{t("pickupLocation")} {t("required")}</Label>
+                <Label>{t("pickupLocation")}</Label>
                 <Input
                   value={formData.pickup_location}
                   onChange={(e) => setFormData({ ...formData, pickup_location: e.target.value })}
-                  required
+                  placeholder="Pickup location (optional)"
                 />
               </div>
               <div>
-                <Label>{t("destination")} {t("required")}</Label>
+                <Label>{t("destination")}</Label>
                 <Input
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  required
+                  placeholder="Destination (optional)"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>{t("preferredDate")} {t("required")}</Label>
+                <Label>{t("preferredDate")}</Label>
                 <Input
                   type="date"
                   value={formData.preferred_date}
                   onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
                   min={new Date().toISOString().split("T")[0]}
-                  required
+                  placeholder="Preferred date (optional)"
                 />
               </div>
               <div>
-                <Label>{t("preferredTime")} {t("required")}</Label>
+                <Label>{t("preferredTime")}</Label>
                 <Select
                   value={formData.preferred_time}
                   onValueChange={(v) => setFormData({ ...formData, preferred_time: v })}

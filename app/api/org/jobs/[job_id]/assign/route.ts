@@ -22,14 +22,14 @@ export async function POST(
   { params }: { params: Promise<{ job_id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getOrgSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    // Skip session check for hackathon demo
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 }
+    //   );
+    // }
 
     const { job_id } = await params;
     const body = await request.json();
@@ -42,7 +42,7 @@ export async function POST(
       .from("jobs")
       .select("*")
       .eq("id", job_id)
-      .eq("organization_id", session.organization_id)
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .single();
 
     if (jobError || !job) {
@@ -59,12 +59,12 @@ export async function POST(
       );
     }
 
-    // Verify driver belongs to this organization
+    // Verify driver exists
     const { data: driver, error: driverError } = await supabase
       .from("drivers")
       .select("*")
       .eq("id", driver_id)
-      .eq("organization_id", session.organization_id)
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .single();
 
     if (driverError || !driver) {

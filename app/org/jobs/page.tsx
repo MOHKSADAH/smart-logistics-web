@@ -10,29 +10,38 @@ async function getOrgSession() {
 }
 
 export default async function JobsListPage() {
-  const session = await getOrgSession();
+  // Skip session check for hackathon demo
+  // const session = await getOrgSession();
   const supabase = getServerSupabaseClient();
 
+  // Fetch jobs
   const { data: jobsData } = await supabase
     .from("jobs")
-    .select(`
-      id,
-      job_number,
-      customer_name,
-      cargo_type,
-      priority,
-      status,
-      driver:drivers!assigned_driver_id (name, vehicle_plate),
-      permit:permits!permit_id (permit_code, status)
-    `)
-    .eq("organization_id", session.organization_id)
+    .select("*")
     .order("created_at", { ascending: false });
 
-  // Transform Supabase array responses to single objects
-  const jobs = (jobsData || []).map((job: any) => ({
-    ...job,
-    driver: Array.isArray(job.driver) && job.driver.length > 0 ? job.driver[0] : null,
-    permit: Array.isArray(job.permit) && job.permit.length > 0 ? job.permit[0] : null,
+  if (!jobsData) {
+    return <JobsClient jobs={[]} />;
+  }
+
+  // Fetch all drivers and permits
+  const { data: allDrivers } = await supabase.from("drivers").select("id, name, vehicle_plate");
+  const { data: allPermits } = await supabase.from("permits").select("id, permit_code, status");
+
+  // Create lookup maps
+  const driversMap = new Map(allDrivers?.map(d => [d.id, d]) || []);
+  const permitsMap = new Map(allPermits?.map(p => [p.id, p]) || []);
+
+  // Enrich jobs with driver and permit data
+  const jobs = jobsData.map((job: any) => ({
+    id: job.id,
+    job_number: job.job_number,
+    customer_name: job.customer_name,
+    cargo_type: job.cargo_type,
+    priority: job.priority,
+    status: job.status,
+    driver: job.assigned_driver_id ? driversMap.get(job.assigned_driver_id) || null : null,
+    permit: job.permit_id ? permitsMap.get(job.permit_id) || null : null,
   }));
 
   return <JobsClient jobs={jobs} />;

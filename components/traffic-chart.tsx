@@ -26,9 +26,11 @@ const chartConfig = {
 
 interface TrafficChartProps {
   data: TrafficUpdate[];
+  title?: string;
+  description?: string;
 }
 
-export function TrafficChart({ data }: TrafficChartProps) {
+export function TrafficChart({ data, title, description }: TrafficChartProps) {
   const chartData = data.map((item) => ({
     time: format(new Date(item.timestamp), "HH:mm"),
     vehicle_count: item.vehicle_count,
@@ -37,11 +39,11 @@ export function TrafficChart({ data }: TrafficChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>24-Hour Traffic History</CardTitle>
-        <CardDescription>Vehicle count over the last 24 hours</CardDescription>
+        <CardTitle>{title || "24-Hour Traffic History"}</CardTitle>
+        <CardDescription>{description || "Vehicle count over the last 24 hours"}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[300px]" id="traffic-chart-main">
           <AreaChart
             data={chartData}
             margin={{ left: 12, right: 12 }}

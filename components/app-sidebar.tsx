@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Activity, FileCheck, Users, Ship, BarChart3, Bell } from "lucide-react";
+import { LayoutDashboard, Activity, FileCheck, Users, Building2, Ship, BarChart3, Bell, PlayCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTranslations, useLocale } from 'next-intl';
@@ -45,6 +45,11 @@ export function AppSidebar() {
       icon: Users,
     },
     {
+      title: "Organizations",
+      href: `/${locale}/organizations`,
+      icon: Building2,
+    },
+    {
       title: t('vessels'),
       href: `/${locale}/vessels`,
       icon: Ship,
@@ -58,6 +63,11 @@ export function AppSidebar() {
       title: t('notifications'),
       href: `/${locale}/notifications`,
       icon: Bell,
+    },
+    {
+      title: t('demoControl'),
+      href: `/${locale}/demo-control`,
+      icon: PlayCircle,
     },
   ];
 

@@ -15,15 +15,22 @@ import {
   ArrowRight,
   Package,
   Clock,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
+
+interface RecentJob {
+  id: string;
+  job_number: string;
+  customer_name: string;
+  status: string;
+}
 
 interface DashboardStats {
   activeJobs: number;
   completedToday: number;
   availableDrivers: number;
   totalDrivers: number;
-  recentJobs: any[];
+  recentJobs: RecentJob[];
 }
 
 function DashboardContent({ stats }: { stats: DashboardStats }) {
@@ -34,16 +41,19 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
     getOrgTranslation(locale, key);
 
   // Calculate percentage of available drivers
-  const availabilityRate = stats.totalDrivers > 0
-    ? Math.round((stats.availableDrivers / stats.totalDrivers) * 100)
-    : 0;
+  const availabilityRate =
+    stats.totalDrivers > 0
+      ? Math.round((stats.availableDrivers / stats.totalDrivers) * 100)
+      : 0;
 
   return (
     <div className="space-y-6">
       {/* Header with Welcome Message */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("dashboard")}</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            {t("dashboard")}
+          </h1>
           <p className="text-muted-foreground mt-1">{t("welcomeBack")}</p>
         </div>
         <Link href={`/org/jobs/create?lang=${locale}`}>
@@ -64,7 +74,9 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
                   <TrendingUp className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("todayJobs")}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("todayJobs")}
+                  </p>
                   <p className="text-2xl font-bold text-foreground">
                     {stats.activeJobs + stats.completedToday} {t("totalJobs")}
                   </p>
@@ -72,12 +84,20 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               </div>
               <div className="flex gap-6">
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase">{t("activeJobs")}</p>
-                  <p className="text-xl font-bold text-foreground">{stats.activeJobs}</p>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    {t("activeJobs")}
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {stats.activeJobs}
+                  </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase">{t("completedToday")}</p>
-                  <p className="text-xl font-bold text-foreground">{stats.completedToday}</p>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    {t("completedToday")}
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {stats.completedToday}
+                  </p>
                 </div>
               </div>
             </div>
@@ -95,14 +115,14 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t("activeJobs")}
               </CardTitle>
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                <Briefcase className="h-5 w-5 text-foreground" />
-              </div>
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-foreground">{stats.activeJobs}</p>
+              <p className="text-4xl font-bold text-foreground">
+                {stats.activeJobs}
+              </p>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {t("status")}: {t("IN_PROGRESS")}
@@ -119,14 +139,14 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t("completedToday")}
               </CardTitle>
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5 text-foreground" />
-              </div>
+              <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-foreground">{stats.completedToday}</p>
+              <p className="text-4xl font-bold text-foreground">
+                {stats.completedToday}
+              </p>
               <p className="text-xs text-muted-foreground">
                 ✓ {t("COMPLETED")}
               </p>
@@ -142,14 +162,14 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t("availableDrivers")}
               </CardTitle>
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                <Users className="h-5 w-5 text-foreground" />
-              </div>
+              <Users className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-foreground">{stats.availableDrivers}</p>
+              <p className="text-4xl font-bold text-foreground">
+                {stats.availableDrivers}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {availabilityRate}% {t("available")}
               </p>
@@ -165,29 +185,29 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t("totalDrivers")}
               </CardTitle>
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                <TruckIcon className="h-5 w-5 text-foreground" />
-              </div>
+              <TruckIcon className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-foreground">{stats.totalDrivers}</p>
-              <p className="text-xs text-muted-foreground">
-                Fleet Size
+              <p className="text-4xl font-bold text-foreground">
+                {stats.totalDrivers}
               </p>
+              <p className="text-xs text-muted-foreground">Fleet Size</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Recent Jobs - Enhanced Card */}
-      <Card className="hover:shadow-lg transition-shadow">
-        <CardHeader className="border-b bg-muted/50">
+      <Card className="hover:shadow-lg transition-shadow overflow-hidden">
+        <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-foreground" />
-              <CardTitle className="text-lg font-semibold">{t("recentJobs")}</CardTitle>
+              <CardTitle className="text-lg font-semibold">
+                {t("recentJobs")}
+              </CardTitle>
             </div>
             <Badge variant="secondary">
               {stats.recentJobs.length} {t("jobs")}
@@ -196,8 +216,8 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
         </CardHeader>
         <CardContent className="p-0">
           {stats.recentJobs.length > 0 ? (
-            <div className="divide-y divide-border">
-              {stats.recentJobs.map((job: any) => (
+            <div className="divide-y">
+              {stats.recentJobs.map((job) => (
                 <div
                   key={job.id}
                   className="flex justify-between items-center p-4 hover:bg-accent transition-colors group cursor-pointer"
@@ -210,7 +230,9 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
                       <p className="font-semibold text-foreground">
                         {job.job_number}
                       </p>
-                      <p className="text-sm text-muted-foreground">{job.customer_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {job.customer_name}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -219,11 +241,13 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
                         job.status === "COMPLETED"
                           ? "default"
                           : job.status === "ASSIGNED"
-                          ? "secondary"
-                          : "outline"
+                            ? "secondary"
+                            : "outline"
                       }
                     >
-                      {t(job.status as any)}
+                      {t(
+                        job.status as keyof typeof import("@/lib/org-i18n").orgTranslations.en,
+                      )}
                     </Badge>
                     <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
                   </div>
@@ -244,7 +268,7 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
             </div>
           )}
           {stats.recentJobs.length > 0 && (
-            <div className="p-4 border-t bg-muted/30">
+            <div className="p-4 border-t">
               <Link href={`/org/jobs?lang=${locale}`}>
                 <Button variant="ghost" className="w-full">
                   {t("viewAllJobs")}
@@ -261,7 +285,9 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
 
 export function DashboardClient({ stats }: { stats: DashboardStats }) {
   return (
-    <Suspense fallback={<div className="text-muted-foreground">Loading...</div>}>
+    <Suspense
+      fallback={<div className="text-muted-foreground">Loading...</div>}
+    >
       <DashboardContent stats={stats} />
     </Suspense>
   );

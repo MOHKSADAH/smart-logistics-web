@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { format, formatDistanceToNow } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,13 +12,61 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { TrafficStatusBadge } from "@/components/traffic-status-badge";
 import { TrafficChart } from "@/components/traffic-chart";
+import { TrafficHeatMap } from "@/components/traffic-heat-map";
 import { RealtimeListener } from "@/components/realtime-listener";
-import { getTrafficData } from "@/lib/queries";
+import { getTrafficData, getVesselSchedules } from "@/lib/queries";
+import { Ship } from "lucide-react";
+
+// Aggregate traffic data by hour for heat map
+function aggregateTrafficByHour(history: any[]) {
+  const hourlyData = new Map<number, { totalVehicles: number; totalTrucks: number; statuses: string[]; count: number }>();
+
+  // Initialize all 24 hours
+  for (let hour = 0; hour < 24; hour++) {
+    hourlyData.set(hour, { totalVehicles: 0, totalTrucks: 0, statuses: [], count: 0 });
+  }
+
+  // Aggregate data by hour
+  history.forEach((record) => {
+    const hour = new Date(record.timestamp).getHours();
+    const data = hourlyData.get(hour)!;
+    data.totalVehicles += record.vehicle_count || 0;
+    data.totalTrucks += record.truck_count || 0;
+    data.statuses.push(record.status);
+    data.count++;
+  });
+
+  // Convert to heat map format
+  return Array.from(hourlyData.entries()).map(([hour, data]) => {
+    const avgVehicles = data.count > 0 ? Math.round(data.totalVehicles / data.count) : 0;
+    const avgTrucks = data.count > 0 ? Math.round(data.totalTrucks / data.count) : 0;
+
+    // Determine status based on average vehicle count
+    let status: "NORMAL" | "MODERATE" | "CONGESTED" = "NORMAL";
+    if (avgVehicles >= 150) status = "CONGESTED";
+    else if (avgVehicles >= 100) status = "MODERATE";
+
+    return {
+      hour,
+      status,
+      vehicleCount: avgVehicles,
+      truckCount: avgTrucks,
+    };
+  });
+}
 
 export default async function TrafficPage() {
   const t = await getTranslations('traffic');
-  const traffic = await getTrafficData();
+  const tDashboard = await getTranslations('dashboard');
+  const tCommon = await getTranslations('common');
+
+  const [traffic, vessels] = await Promise.all([
+    getTrafficData(),
+    getVesselSchedules(),
+  ]);
+
   const recentUpdates = traffic.history.slice(-20).reverse();
+  const upcomingVessels = vessels.slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -78,8 +126,66 @@ export default async function TrafficPage() {
         </Card>
       )}
 
-      {/* Traffic Chart */}
-      <TrafficChart data={traffic.history} />
+      {/* Traffic Heat Map */}
+      <TrafficHeatMap
+        data={traffic.history.length > 0 ? aggregateTrafficByHour(traffic.history) : undefined}
+        vessels={upcomingVessels.map((v) => ({
+          hour: v.arrival_time ? parseInt(v.arrival_time.split(':')[0]) : 8,
+          vesselName: v.vessel_name,
+          estimatedTrucks: v.estimated_trucks,
+        }))}
+      />
+
+      {/* Traffic Chart & Vessels Grid */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Traffic Chart - 2 columns */}
+        <div className="md:col-span-2">
+          <TrafficChart
+            data={traffic.history}
+            title={t('chartTitle')}
+            description={t('chartDescription')}
+          />
+        </div>
+
+        {/* Upcoming Vessels Widget - 1 column */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ship className="h-5 w-5" />
+                {tDashboard('upcomingVessels')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {upcomingVessels.length > 0 ? (
+                  upcomingVessels.map((vessel) => (
+                    <div
+                      key={vessel.id}
+                      className="border-l-4 border-blue-500 pl-3 py-1"
+                    >
+                      <div className="font-semibold text-sm">{vessel.vessel_name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(vessel.arrival_date), "MMM d, yyyy")}
+                        {vessel.arrival_time &&
+                          ` ${tDashboard('at')} ${vessel.arrival_time.slice(0, 5)}`}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {tDashboard('estimated')} {vessel.estimated_trucks}{" "}
+                        {tCommon('trucks')}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No upcoming vessels
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Recent Updates Table */}
       <Card>

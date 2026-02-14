@@ -100,6 +100,7 @@ export async function getTrafficData() {
 export async function getAllPermits(filters?: {
   status?: string;
   priority?: string;
+  organizationId?: string;
 }) {
   const supabase = getServerSupabaseClient();
 
@@ -116,6 +117,10 @@ export async function getAllPermits(filters?: {
     query = query.eq("priority", filters.priority);
   }
 
+  if (filters?.organizationId) {
+    query = query.eq("organization_id", filters.organizationId);
+  }
+
   const { data: permits, error } = await query;
 
   if (error || !permits) {
@@ -129,8 +134,11 @@ export async function getAllPermits(filters?: {
   const vesselIds = [
     ...new Set(permits.filter((p) => p.vessel_id).map((p) => p.vessel_id!)),
   ];
+  const organizationIds = [
+    ...new Set(permits.filter((p) => p.organization_id).map((p) => p.organization_id!)),
+  ];
 
-  const [driversResult, slotsResult, vesselsResult] = await Promise.all([
+  const [driversResult, slotsResult, vesselsResult, orgsResult, jobsResult] = await Promise.all([
     driverIds.length > 0
       ? supabase
           .from("drivers")
@@ -148,6 +156,18 @@ export async function getAllPermits(filters?: {
           .from("vessel_schedules")
           .select("id, vessel_name, arrival_date, arrival_time, estimated_trucks")
           .in("id", vesselIds)
+      : Promise.resolve({ data: [] }),
+    organizationIds.length > 0
+      ? supabase
+          .from("organizations")
+          .select("id, name, email")
+          .in("id", organizationIds)
+      : Promise.resolve({ data: [] }),
+    driverIds.length > 0
+      ? supabase
+          .from("jobs")
+          .select("id, job_number, customer_name, cargo_type, pickup_location, destination, driver_id")
+          .in("driver_id", driverIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -167,6 +187,16 @@ export async function getAllPermits(filters?: {
       (acc, v) => ({ ...acc, [v.id]: v }),
       {}
     ) || {};
+  const orgMap: Record<string, { id: string; name: string; email: string }> =
+    orgsResult.data?.reduce(
+      (acc, o) => ({ ...acc, [o.id]: o }),
+      {}
+    ) || {};
+  const jobMap: Record<string, any> =
+    jobsResult.data?.reduce(
+      (acc, j) => ({ ...acc, [j.driver_id]: j }),
+      {}
+    ) || {};
 
   // Enrich permits with related data
   return permits.map((permit) => ({
@@ -174,6 +204,8 @@ export async function getAllPermits(filters?: {
     driver: driverMap[permit.driver_id] || null,
     slot: slotMap[permit.slot_id] || null,
     vessel: permit.vessel_id ? vesselMap[permit.vessel_id] : null,
+    organization: permit.organization_id ? orgMap[permit.organization_id] : null,
+    job: jobMap[permit.driver_id] || null,
   }));
 }
 
@@ -374,4 +406,177 @@ export async function getAnalyticsData() {
     permitsByPriority,
     avgTrafficByHour,
   };
+}
+
+// ============================================================
+// Organization-Specific Queries (Phase 1: Admin Integration)
+// ============================================================
+
+/**
+ * Get all jobs created by a specific organization
+ * Includes driver assignments and permit status
+ */
+export async function getJobsByOrganization(organizationId: string) {
+  const supabase = getServerSupabaseClient();
+
+  const { data: jobs, error } = await supabase
+    .from("jobs")
+    .select(`
+      *,
+      drivers (
+        id,
+        name,
+        phone,
+        vehicle_plate
+      ),
+      permits (
+        id,
+        permit_code,
+        status,
+        priority,
+        qr_code
+      )
+    `)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch jobs by organization:", error);
+    return [];
+  }
+
+  return jobs || [];
+}
+
+/**
+ * Get all permits for a specific organization
+ * Includes job context that created the permit
+ */
+export async function getPermitsByOrganization(organizationId: string) {
+  const supabase = getServerSupabaseClient();
+
+  const { data: permits, error } = await supabase
+    .from("permits")
+    .select(`
+      *,
+      drivers (
+        id,
+        name,
+        phone,
+        vehicle_plate
+      ),
+      time_slots (
+        id,
+        date,
+        start_time,
+        end_time
+      ),
+      jobs (
+        id,
+        job_number,
+        customer_name,
+        cargo_type,
+        pickup_location,
+        destination
+      )
+    `)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch permits by organization:", error);
+    return [];
+  }
+
+  return permits || [];
+}
+
+/**
+ * Get aggregated metrics for a specific organization
+ * Used for organization detail view in admin dashboard
+ */
+export async function getOrganizationMetrics(organizationId: string) {
+  const supabase = getServerSupabaseClient();
+
+  // Get all jobs
+  const { data: jobs } = await supabase
+    .from("jobs")
+    .select("id, status, priority, created_at")
+    .eq("organization_id", organizationId);
+
+  // Get all permits
+  const { data: permits } = await supabase
+    .from("permits")
+    .select("id, status, priority, created_at")
+    .eq("organization_id", organizationId);
+
+  const totalJobs = jobs?.length || 0;
+  const completedJobs = jobs?.filter((j) => j.status === "COMPLETED").length || 0;
+  const activeJobs = jobs?.filter((j) => j.status === "IN_PROGRESS" || j.status === "ASSIGNED").length || 0;
+
+  const totalPermits = permits?.length || 0;
+  const approvedPermits = permits?.filter((p) => p.status === "APPROVED").length || 0;
+  const haltedPermits = permits?.filter((p) => p.status === "HALTED").length || 0;
+
+  // Calculate completion rate
+  const completionRate = totalJobs > 0 ? Math.round((completedJobs / totalJobs) * 100) : 0;
+
+  // Get last activity
+  const allActivities = [...(jobs || []), ...(permits || [])];
+  const lastActivity = allActivities.length > 0
+    ? new Date(Math.max(...allActivities.map((a) => new Date(a.created_at).getTime())))
+    : null;
+
+  // Priority breakdown
+  const priorityBreakdown = {
+    EMERGENCY: jobs?.filter((j) => j.priority === "EMERGENCY").length || 0,
+    ESSENTIAL: jobs?.filter((j) => j.priority === "ESSENTIAL").length || 0,
+    NORMAL: jobs?.filter((j) => j.priority === "NORMAL").length || 0,
+    LOW: jobs?.filter((j) => j.priority === "LOW").length || 0,
+  };
+
+  return {
+    totalJobs,
+    completedJobs,
+    activeJobs,
+    totalPermits,
+    approvedPermits,
+    haltedPermits,
+    completionRate,
+    lastActivity,
+    priorityBreakdown,
+  };
+}
+
+/**
+ * Get all organizations with activity metrics
+ * Admin view for monitoring all organizations
+ */
+export async function getAllOrganizationsActivity() {
+  const supabase = getServerSupabaseClient();
+
+  // Get all organizations
+  const { data: organizations, error } = await supabase
+    .from("organizations")
+    .select("id, name, email, created_at")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error || !organizations) {
+    console.error("Failed to fetch organizations:", error);
+    return [];
+  }
+
+  // Get metrics for each organization
+  const organizationsWithMetrics = await Promise.all(
+    organizations.map(async (org) => {
+      const metrics = await getOrganizationMetrics(org.id);
+      return {
+        ...org,
+        ...metrics,
+      };
+    })
+  );
+
+  return organizationsWithMetrics;
 }

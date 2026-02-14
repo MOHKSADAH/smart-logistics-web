@@ -9,6 +9,7 @@
     "vessels": "Vessels",
     "analytics": "Analytics",
     "notifications": "Notifications",
+    "demoControl": "Demo Control",
     "monitor": "Monitor"
   },
   "dashboard": {
@@ -87,7 +88,9 @@
     "camera": "Camera",
     "cameraId": "Camera ID",
     "timestamp": "Timestamp",
-    "updated": "Updated"
+    "updated": "Updated",
+    "chartTitle": "Hour Traffic History-24",
+    "chartDescription": "Vehicle count over the last 24 hours"
   },
   "drivers": {
     "title": "Driver Management",
@@ -156,7 +159,10 @@
     "time_sensitive": "Time-Sensitive",
     "essential": "Essential",
     "normal": "Normal",
-    "low": "Low"
+    "standard": "Standard",
+    "low": "Low",
+    "bulk": "Bulk",
+    "perishable": "Perishable"
   },
   "common": {
     "na": "N/A",

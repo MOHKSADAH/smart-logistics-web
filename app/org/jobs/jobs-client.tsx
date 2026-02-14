@@ -11,6 +11,7 @@ import { DeleteJobButton } from "./delete-job-button";
 import { BulkAutoAssignButton } from "./bulk-auto-assign-button";
 import { getOrgTranslation, type Locale } from "@/lib/org-i18n";
 import { Suspense } from "react";
+import { MapPin } from "lucide-react";
 
 interface Job {
   id: string;
@@ -44,14 +45,14 @@ function JobsContent({ jobs }: { jobs: Job[] }) {
         </div>
       </div>
 
-      <Card className="hover:shadow-lg transition-shadow">
-        <CardHeader className="border-b bg-muted/50">
+      <Card className="hover:shadow-lg transition-shadow overflow-hidden">
+        <CardHeader className="border-b">
           <CardTitle>{t("allJobs")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="border-b bg-muted/30">
+              <thead className="border-b">
                 <tr className="text-left">
                   <th className="pb-3 pt-4 px-4 text-sm font-semibold text-foreground">
                     {t("jobNumber")}
@@ -79,20 +80,30 @@ function JobsContent({ jobs }: { jobs: Job[] }) {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y">
                 {jobs.length > 0 ? (
                   jobs.map((job) => (
-                    <tr key={job.id} className="hover:bg-accent transition-colors">
+                    <tr
+                      key={job.id}
+                      className="hover:bg-accent transition-colors"
+                    >
                       <td className="py-4 px-4">
-                        <JobDetailDialog jobId={job.id} jobNumber={job.job_number}>
+                        <JobDetailDialog
+                          jobId={job.id}
+                          jobNumber={job.job_number}
+                        >
                           <button className="text-primary hover:underline font-medium hover:opacity-80 transition-opacity">
                             {job.job_number}
                           </button>
                         </JobDetailDialog>
                       </td>
-                      <td className="py-4 px-4 text-foreground">{job.customer_name}</td>
+                      <td className="py-4 px-4 text-foreground">
+                        {job.customer_name}
+                      </td>
                       <td className="py-4 px-4">
-                        <span className="text-sm text-muted-foreground">{t(job.cargo_type as any)}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {t(job.cargo_type as any)}
+                        </span>
                       </td>
                       <td className="py-4 px-4">
                         <Badge
@@ -100,8 +111,8 @@ function JobsContent({ jobs }: { jobs: Job[] }) {
                             job.priority === "EMERGENCY"
                               ? "destructive"
                               : job.priority === "ESSENTIAL"
-                              ? "default"
-                              : "secondary"
+                                ? "default"
+                                : "secondary"
                           }
                         >
                           {t(job.priority as any)}
@@ -116,8 +127,8 @@ function JobsContent({ jobs }: { jobs: Job[] }) {
                             job.status === "COMPLETED"
                               ? "default"
                               : job.status === "ASSIGNED"
-                              ? "secondary"
-                              : "outline"
+                                ? "secondary"
+                                : "outline"
                           }
                         >
                           {t(job.status as any)}
@@ -128,15 +139,31 @@ function JobsContent({ jobs }: { jobs: Job[] }) {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-2">
-                          {job.status === "PENDING" && <AutoAssignButton jobId={job.id} />}
-                          <DeleteJobButton jobId={job.id} jobNumber={job.job_number} />
+                          {job.status === "PENDING" && (
+                            <AutoAssignButton jobId={job.id} />
+                          )}
+                          {(job.status === "ASSIGNED" || job.status === "IN_PROGRESS") && (
+                            <Link href={`/org/jobs/${job.id}/track?lang=${locale}`}>
+                              <Button size="sm" variant="outline">
+                                <MapPin className="h-3 w-3 me-1" />
+                                Track
+                              </Button>
+                            </Link>
+                          )}
+                          <DeleteJobButton
+                            jobId={job.id}
+                            jobNumber={job.job_number}
+                          />
                         </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-muted-foreground">
+                    <td
+                      colSpan={8}
+                      className="py-12 text-center text-muted-foreground"
+                    >
                       {t("noJobs")}
                     </td>
                   </tr>

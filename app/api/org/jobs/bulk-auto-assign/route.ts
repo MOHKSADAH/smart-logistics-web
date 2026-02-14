@@ -13,21 +13,22 @@ async function getOrgSession() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getOrgSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    // Skip session check for hackathon demo
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 }
+    //   );
+    // }
 
     const supabase = getServerSupabaseClient();
 
-    // Get all pending jobs for this organization
+    // Get all pending jobs (all organizations for demo)
     const { data: pendingJobs, error: jobsError } = await supabase
       .from("jobs")
-      .select("id, job_number, preferred_date, preferred_time, priority, cargo_type")
-      .eq("organization_id", session.organization_id)
+      .select("id, job_number, preferred_date, preferred_time, priority, cargo_type, organization_id")
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .eq("status", "PENDING")
       .order("priority", { ascending: false }); // Process high priority first
 
@@ -65,11 +66,11 @@ export async function POST(request: NextRequest) {
     // Process each job
     for (const job of pendingJobs) {
       try {
-        // Find best available driver
+        // Find best available driver from job's organization
         const { data: drivers, error: driversError } = await supabase
           .from("drivers")
           .select("id, name, phone, vehicle_plate, has_smartphone, prefers_sms")
-          .eq("organization_id", session.organization_id)
+          .eq("organization_id", job.organization_id) // Use job's org instead of session
           .eq("is_available", true)
           .eq("is_active", true)
           .limit(1);

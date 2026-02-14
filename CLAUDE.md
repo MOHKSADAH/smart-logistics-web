@@ -17,6 +17,7 @@ Tech Stack: Next.js 16, Supabase (PostgreSQL), TypeScript, Tailwind CSS
 ✅ **NEW**: Logistics companies create jobs → assign drivers → permits auto-generated
 
 **Key Innovation**: Vessel-driven congestion prediction
+
 - Vessels arrive early morning (7-9am)
 - Containers ready 2-4 hours later
 - Creates 10am-2pm truck surge
@@ -27,11 +28,13 @@ Tech Stack: Next.js 16, Supabase (PostgreSQL), TypeScript, Tailwind CSS
 Build an AI-powered traffic management system that reduces port-related truck congestion on King Abdulaziz Road (Dammam) by 30-40% using priority-aware dynamic permit management with vessel schedule integration.
 
 **The Problem**:
+
 - 1,260 trucks per day to Dammam seaport cause massive traffic congestion
 - Vessel arrivals drive predictable 10am-2pm truck surges
 - Current system treats all trucks equally regardless of cargo urgency
 
 **The Solution**:
+
 - Organizations (SMSA, Aramex, Naqel) create delivery jobs
 - System predicts congestion from vessel schedules
 - Auto-assigns time slots avoiding vessel-driven surges
@@ -53,6 +56,7 @@ Build an AI-powered traffic management system that reduces port-related truck co
 ```
 
 Three Teams:
+
 - Team 1 (Backend & Dashboard): Backend APIs + Admin Dashboard + Organization Portal
 - Team 2 (Mobile App): React Native driver mobile app (receives job assignments)
 - Team 3 (AI/Computer Vision): Python + YOLO (sends traffic data to our backend)
@@ -61,14 +65,15 @@ Three Teams:
 
 Four-Tier Classification (THIS IS THE CORE VALUE PROPOSITION):
 
-| Priority  | Cargo Type                           | Max Delay | Can Be Halted |
-|-----------|--------------------------------------|-----------|---------------|
-| EMERGENCY | Medical supplies, vaccines, perishable food | 0 min | No |
-| ESSENTIAL | E-commerce, JIT manufacturing       | 2 hours   | No |
-| NORMAL    | Standard containers                 | 8 hours   | Yes |
-| LOW       | Bulk materials                      | 24 hours  | Yes |
+| Priority  | Cargo Type                                  | Max Delay | Can Be Halted |
+| --------- | ------------------------------------------- | --------- | ------------- |
+| EMERGENCY | Medical supplies, vaccines, perishable food | 0 min     | No            |
+| ESSENTIAL | E-commerce, JIT manufacturing               | 2 hours   | No            |
+| NORMAL    | Standard containers                         | 8 hours   | Yes           |
+| LOW       | Bulk materials                              | 24 hours  | Yes           |
 
 Traffic Status Response:
+
 - NORMAL (< 100 vehicles): Approve all permits
 - MODERATE (100-150 vehicles): Warn drivers, prioritize urgent
 - CONGESTED (> 150 vehicles): HALT NORMAL & LOW only, protect EMERGENCY & ESSENTIAL
@@ -89,6 +94,7 @@ Core Tables (Organization-Based System):
 10. **notifications** - Push notification log
 
 Critical Database Functions:
+
 ```sql
 -- Auto-generate human-readable permit codes
 generate_permit_code() → 'P-20260210-1234'
@@ -123,11 +129,13 @@ Register new driver for the organization
 
 **POST /api/org/jobs/create** (CRITICAL)
 Create delivery job → Returns vessel warning + available drivers
+
 - Shows: "⚠️ 3 vessels arriving tomorrow, 560 trucks expected 10am-4pm"
 - Suggests: Alternative time slots (night shifts, off-peak)
 
 **POST /api/org/jobs/{job_id}/assign** (MOST CRITICAL)
 Assign driver to job → Auto-generates permit
+
 - Finds best available slot
 - Creates permit with QR code + permit code
 - Sends notification (app or SMS based on driver.has_smartphone)
@@ -141,6 +149,7 @@ Track job progress (driver location, permit status, timeline)
 
 **POST /api/org/jobs/{job_id}/auto-assign** ⚡ NEW (Feb 12, 2026)
 Auto-assign best available driver → Creates permit in one click
+
 - Finds best available driver (first active & available)
 - Calls find_best_slot() to get optimal time
 - Generates permit with QR code
@@ -175,25 +184,32 @@ Dashboard charts (permits by organization, compliance rates)
 ## 🆕 Latest Updates (Feb 12, 2026)
 
 ### Performance Optimizations
+
 **Login Endpoint** - Reduced from 2 DB calls to 1:
+
 - Before: Fetch org + verify password (2 round-trips)
 - After: Single query with .eq('is_active', true) + password check
 - Result: ~50% faster login
 
 **Job Creation Endpoint** - Parallel queries:
+
 - Before: Sequential queries for drivers + vessels (2+ round-trips)
 - After: Promise.all([drivers, vessels]) - fetched in parallel
 - Result: ~40% faster job creation
 
 ### Auto-Assign Feature ⚡
+
 **Location**: Jobs list + Job creation page
+
 - Jobs List: "Auto-Assign" button appears for PENDING jobs
 - Job Creation: Big blue "🚀 Auto-Assign Best Driver" button after creating job
 - One-click operation: Finds driver + creates permit + sends notification
 - Manual selection still available as fallback
 
 ### Arabic Language Support 🌍
+
 **Scope**: Login page + Navigation bar
+
 - Toggle button: "العربية" / "English"
 - URL parameter: `?lang=ar` or `?lang=en`
 - RTL layout when Arabic selected
@@ -201,13 +217,16 @@ Dashboard charts (permits by organization, compliance rates)
 - Language persists across pages via URL param
 
 ### Loading Skeletons
+
 **Pages with skeletons**:
+
 - `/org` - Dashboard loading state
 - `/org/jobs` - Jobs list loading state
 - `/org/drivers` - Drivers list loading state
 - Smooth transitions, no blank screens
 
 ### UI/UX Improvements
+
 - Suspense boundaries for useSearchParams (no hydration errors)
 - Tailwind v4 syntax (bg-linear-to-br)
 - Optimized form handling
@@ -225,6 +244,7 @@ Charts: Recharts for analytics visualizations
 Deployment: Vercel with automatic HTTPS
 
 Key Dependencies:
+
 - @supabase/supabase-js: Database client
 - zod: Schema validation
 - zustand: State management
@@ -248,6 +268,7 @@ POST /api/locations - Send GPS location updates
 ## Critical Business Logic
 
 When Traffic Status = CONGESTED:
+
 1. Call halt_permits_by_priority('CONGESTED') PostgreSQL function
 2. Sets NORMAL & LOW priority permits to status='HALTED'
 3. Keeps EMERGENCY & ESSENTIAL permits at status='APPROVED'
@@ -261,6 +282,7 @@ NORMAL: Standard containers (8 hour delay, can halt)
 LOW: Bulk materials (24 hour delay, can halt)
 
 Slot Capacity Management:
+
 - Each time slot has capacity of 10 trucks
 - Automatically increments booked count on permit approval
 - Sets status='FULL' when booked >= capacity
@@ -269,12 +291,14 @@ Slot Capacity Management:
 ## Development Workflow
 
 Local Development Setup:
+
 1. npm install - Install all dependencies
 2. Create .env.local with Supabase credentials
 3. Apply database schema via Supabase SQL Editor
 4. npm run dev - Start Next.js dev server at http://localhost:3000
 
 Testing:
+
 - ./scripts/test-endpoints.ps1 - Automated API endpoint testing
 - ./scripts/seed-test-data.sql - Populate test data (run in Supabase SQL Editor)
 - Invoke-WebRequest -Uri "http://localhost:3000/api/seed-traffic" -Method POST - Seed 48 hours of traffic data
@@ -289,6 +313,7 @@ npm run lint - Run ESLint checks
 ## Project Structure
 
 app/
+
 - api/ - REST API route handlers
   - traffic/ - Traffic updates from AI system
   - slots/ - Time slot availability queries
@@ -300,19 +325,23 @@ app/
 - globals.css - Global styles and Tailwind setup
 
 lib/
+
 - supabase.ts - Server and browser Supabase client initialization
 - types.ts - TypeScript interfaces for database tables
 
 supabase/
+
 - migrations/001_create_schema.sql - Complete database schema with triggers and functions
 
 scripts/
+
 - seed-test-data.sql - Test data population SQL
 - test-endpoints.ps1 - PowerShell test automation script
 
 ## Current Status (February 6, 2026)
 
 Completed:
+
 - Database schema fully set up with 9 tables and triggers
 - 5 core API endpoints implemented and tested
 - Priority-based permit halting logic operational
@@ -321,9 +350,11 @@ Completed:
 - Test suite created and passing
 
 In Progress:
+
 - Vercel deployment configuration
 
 Remaining:
+
 - Admin dashboard pages (Day 2)
 - Real-time traffic visualization
 - Permit management UI
@@ -337,10 +368,12 @@ Remaining:
 ## Deployment to Vercel
 
 Prerequisites:
+
 - Vercel CLI installed (npm install -g vercel)
 - Vercel account created (free tier available)
 
 Deploy Steps:
+
 1. vercel login - Authenticate with Vercel
 2. vercel - Deploy from project directory
 3. Follow prompts for project name and settings
@@ -348,11 +381,13 @@ Deploy Steps:
 
 Environment Variables:
 Automatically configured from .env.local during deployment. Vercel securely manages:
+
 - NEXT_PUBLIC_SUPABASE_URL
 - NEXT_PUBLIC_SUPABASE_ANON_KEY
 - SUPABASE_SERVICE_ROLE_KEY
 
 Sharing with Teams:
+
 - Share production URL with Team 2 (mobile app developers)
 - Share production URL with Team 3 (AI/computer vision team)
 - All 5 API endpoints available at: https://your-deployment-url/api/[endpoint]
@@ -361,6 +396,7 @@ Sharing with Teams:
 
 Schema Location: supabase/migrations/001_create_schema.sql
 Seed Data Included:
+
 - 10 priority rules with color codes for UI
 - Time slots for next 7 days (6 AM - 10 PM, 2-hour intervals)
 - Sample vessel schedules (5 ships)
@@ -368,11 +404,13 @@ Seed Data Included:
 - Test driver account
 
 RLS Policies:
+
 - Drivers can view only their own data
 - Public read access to reference tables (slots, traffic, vessels, rules)
 - Service role key bypasses RLS for admin operations
 
 Critical Functions:
+
 - halt_permits_by_priority(): Implements priority-based permit halting
 - update_slot_booking_count(): Auto-updates slot capacity when permits are approved/halted
 - update_updated_at_column(): Auto-timestamps on all table updates
@@ -380,6 +418,7 @@ Critical Functions:
 ## Known Limitations (Prototype)
 
 Trust-Based Priority:
+
 - Drivers self-select cargo type (honor system, no verification)
 - No document verification in hackathon version
 - Estimated 20-30% may falsely claim ESSENTIAL
@@ -387,12 +426,14 @@ Trust-Based Priority:
 - Production: API integration with customs/logistics APIs
 
 Simulated Data:
+
 - Vessel schedules manually entered (no live Mawani port API)
 - Traffic predictions use heuristics (not ML models)
 - Single camera demo footage
 - No real-time integration with port operations
 
 Performance Considerations:
+
 - All API endpoints optimized with proper indexing
 - Batch queries used for relationships (permits with drivers/slots)
 - Supabase Realtime subscriptions ready for dashboard
@@ -404,12 +445,14 @@ Team 2 (Mobile App): Consumes our APIs for driver booking and permit management
 Team 3 (AI/Computer Vision): Sends traffic data to POST /api/traffic
 
 Integration Points:
+
 - Team 3 → POST /api/traffic → Backend processes and halts permits
 - Backend → GET /api/slots → Team 2 shows available booking times
 - Team 2 → POST /api/book → Backend creates permit with QR code
 - Team 2 → POST /api/locations → Backend tracks driver progress
 
 Success Criteria for Hackathon:
+
 - All API endpoints working and tested
 - Traffic halting logic demonstrated
 - EMERGENCY permits protected during congestion
@@ -420,17 +463,20 @@ Success Criteria for Hackathon:
 ## References
 
 Full Specification Document: Traffic_Control_System2.pdf
+
 - Database Schema: Pages 19-28 (Section 3)
 - API Documentation: Pages 49-52 (Appendix A)
 - Priority System Details: Pages 6-8, 29-31 (Sections 1.3, 4.2)
 - Team Responsibilities: Pages 10-12 (Section 2.1)
 
 Key Algorithm Implementations:
+
 - Priority halting logic: Page 24, Listing 14
 - Slot capacity management: Page 24, Listing 13
 - Traffic classification thresholds: Page 17, Listing 1
 
 Port Context and Background:
+
 - Dammam Port processes: 4,310 trucks per week
 - Primary corridor: King Abdulaziz Road
 - Peak traffic periods: 7-9 AM and 4-6 PM (40-50% of daily volume)

@@ -1,39 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabaseClient } from "@/lib/supabase";
-import { cookies } from "next/headers";
 
-// Helper: Get organization from session
-async function getOrgSession() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("org_session");
-  if (!sessionCookie) return null;
-  const session = JSON.parse(sessionCookie.value);
-  if (session.expires_at < Date.now()) return null;
-  return session;
-}
+// Session check disabled for hackathon demo
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ job_id: string }> },
 ) {
   try {
-    // Check authentication
-    const session = await getOrgSession();
-    if (!session) {
-      console.log("[Track Route] No session found");
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 },
-      );
-    }
+    // Skip session check for hackathon demo
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   console.log("[Track Route] No session found");
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 },
+    //   );
+    // }
 
     const { job_id } = await params;
-    console.log(
-      "[Track Route] Fetching job:",
-      job_id,
-      "for org:",
-      session.organization_id,
-    );
+    console.log("[Track Route] Fetching job:", job_id);
     const supabase = getServerSupabaseClient();
 
     // Fetch job with all related data
@@ -70,7 +56,7 @@ export async function GET(
       `,
       )
       .eq("id", job_id)
-      .eq("organization_id", session.organization_id)
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .single();
 
     if (error || !job) {

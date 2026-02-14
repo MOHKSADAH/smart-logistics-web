@@ -12,7 +12,9 @@ export const orgTranslations = {
     // Navigation
     dashboard: "Dashboard",
     jobs: "Jobs",
+    vessels: "Vessels",
     drivers: "Drivers",
+    analytics: "Analytics",
     logout: "Logout",
 
     // Dashboard
@@ -147,7 +149,9 @@ export const orgTranslations = {
     // Navigation
     dashboard: "لوحة التحكم",
     jobs: "الوظائف",
+    vessels: "السفن",
     drivers: "السائقون",
+    analytics: "التحليلات",
     logout: "تسجيل الخروج",
 
     // Dashboard

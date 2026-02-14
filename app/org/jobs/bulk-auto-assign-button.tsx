@@ -50,7 +50,10 @@ export function BulkAutoAssignButton({ hasPendingJobs }: BulkAutoAssignButtonPro
           }
         }
 
-        router.refresh();
+        // Force hard refresh to show updated data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } catch (error) {
         toast.dismiss();
         console.error("Bulk assign error:", error);

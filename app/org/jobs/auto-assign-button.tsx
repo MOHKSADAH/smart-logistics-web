@@ -19,27 +19,45 @@ export function AutoAssignButton({ jobId }: { jobId: string }) {
   const handleAutoAssign = () => {
     startTransition(async () => {
       try {
+        console.log("[AUTO-ASSIGN] Starting for job:", jobId);
         toast.loading(t("autoAssigning"));
 
         const response = await fetch(`/api/org/jobs/${jobId}/auto-assign`, {
           method: "POST",
         });
 
-        const data = await response.json();
+        console.log("[AUTO-ASSIGN] Response status:", response.status);
+        const responseText = await response.text();
+        console.log("[AUTO-ASSIGN] Response text:", responseText);
+
+        let data;
+        try {
+          data = JSON.parse(responseText);
+          console.log("[AUTO-ASSIGN] Response data:", data);
+        } catch (e) {
+          console.error("[AUTO-ASSIGN] Failed to parse JSON:", e);
+          toast.error(`Server error: ${responseText.substring(0, 100)}`);
+          return;
+        }
 
         toast.dismiss();
 
         if (!response.ok || !data.success) {
-          toast.error(data.error || "Auto-assign failed");
+          console.error("[AUTO-ASSIGN] Failed:", data);
+          toast.error(data.error || data.message || "Auto-assign failed");
           return;
         }
 
-        toast.success(`Assigned to ${data.driver.name}`);
-        router.refresh();
+        toast.success(`Assigned to ${data.driver.name} - Permit: ${data.permit.permit_code}`);
+
+        // Force hard refresh to ensure server component re-renders with new data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } catch (error) {
         toast.dismiss();
-        console.error("Auto-assign error:", error);
-        toast.error("Failed to auto-assign");
+        console.error("[AUTO-ASSIGN] Exception:", error);
+        toast.error(error instanceof Error ? error.message : "Failed to auto-assign");
       }
     });
   };

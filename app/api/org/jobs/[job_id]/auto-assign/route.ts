@@ -16,13 +16,14 @@ export async function POST(
   { params }: { params: Promise<{ job_id: string }> }
 ) {
   try {
-    const session = await getOrgSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    // Skip session check for hackathon demo
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 }
+    //   );
+    // }
 
     const { job_id } = await params;
     const supabase = getServerSupabaseClient();
@@ -32,7 +33,7 @@ export async function POST(
       .from("jobs")
       .select("*, organization_id, preferred_date, preferred_time, priority, cargo_type, job_number")
       .eq("id", job_id)
-      .eq("organization_id", session.organization_id)
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .single();
 
     console.log("[AUTO-ASSIGN] Job data:", {
@@ -60,7 +61,7 @@ export async function POST(
     const { data: drivers, error: driversError } = await supabase
       .from("drivers")
       .select("id, name, phone, vehicle_plate, has_smartphone, prefers_sms")
-      .eq("organization_id", session.organization_id)
+      .eq("organization_id", job.organization_id) // Use job's org instead of session
       .eq("is_available", true)
       .eq("is_active", true)
       .limit(1);

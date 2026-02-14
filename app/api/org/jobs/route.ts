@@ -15,14 +15,14 @@ async function getOrgSession() {
 // GET /api/org/jobs - List jobs with filters
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getOrgSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    // Skip session check for hackathon demo
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 }
+    //   );
+    // }
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // PENDING, ASSIGNED, IN_PROGRESS, COMPLETED
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
           )
         )
       `, { count: "exact" })
-      .eq("organization_id", session.organization_id)
+      // .eq("organization_id", session.organization_id) // Disabled for demo
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 

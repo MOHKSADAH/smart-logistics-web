@@ -17,25 +17,37 @@ import { CreatePermitDialog } from "@/components/create-permit-dialog";
 import { PermitDetailDialog } from "@/components/permit-detail-dialog";
 import { RealtimeListener } from "@/components/realtime-listener";
 import { TruckPlateBadge } from "@/components/truck-plate-badge";
+import { OrganizationFilter } from "@/components/organization-filter";
 import {
   getAllPermits,
   getAvailableSlots,
   getAllDrivers,
   getVesselSchedules,
 } from "@/lib/queries";
+import { getServerSupabaseClient } from "@/lib/supabase";
 
 export default async function PermitsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; priority?: string }>;
+  searchParams: Promise<{ status?: string; priority?: string; organizationId?: string }>;
 }) {
   const params = await searchParams;
   const t = await getTranslations('permits');
   const tCommon = await getTranslations('common');
+  const supabase = getServerSupabaseClient();
+
+  // Fetch organizations for filter
+  const { data: organizations } = await supabase
+    .from("organizations")
+    .select("id, name")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
   const [permits, availableSlots, drivers, vessels] = await Promise.all([
     getAllPermits({
       status: params.status,
       priority: params.priority,
+      organizationId: params.organizationId,
     }),
     getAvailableSlots(15),
     getAllDrivers(),
@@ -54,7 +66,10 @@ export default async function PermitsPage({
       />
 
       <div className="flex items-center justify-between gap-4">
-        <PermitFilters />
+        <div className="flex items-center gap-4">
+          <PermitFilters />
+          <OrganizationFilter organizations={organizations || []} />
+        </div>
         <CreatePermitDialog
           drivers={drivers}
           availableSlots={availableSlots}

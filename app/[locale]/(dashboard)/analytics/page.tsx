@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
-import { AnalyticsCharts } from "@/components/analytics-charts";
+import { AnalyticsCharts, BeforeAfterComparisonChart } from "@/components/analytics-charts";
 import { getAnalyticsData } from "@/lib/queries";
 import { getTranslations } from 'next-intl/server';
 
@@ -19,6 +19,11 @@ export default async function AnalyticsPage() {
         title={t('title')}
         description={t('description')}
       />
+
+      {/* Before/After PORTA Comparison */}
+      <div className="grid gap-4">
+        <BeforeAfterComparisonChart />
+      </div>
 
       {/* Charts */}
       <AnalyticsCharts

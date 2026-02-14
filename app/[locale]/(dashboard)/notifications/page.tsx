@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import { RealtimeListener } from "@/components/realtime-listener";
 import { TruckPlateBadge } from "@/components/truck-plate-badge";
+import { NotificationFeed } from "@/components/notification-feed";
 import { getServerSupabaseClient } from "@/lib/supabase";
 
 async function getNotifications() {
@@ -74,79 +75,8 @@ export default async function NotificationsPage() {
         </div>
       </div>
 
-      {/* Notifications Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{tCommon('driver')}</TableHead>
-              <TableHead>{t('type')}</TableHead>
-              <TableHead>{t('message')}</TableHead>
-              <TableHead>{tCommon('status')}</TableHead>
-              <TableHead>{t('sent')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {notifications.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center text-muted-foreground py-12"
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <Bell className="h-12 w-12 text-muted-foreground/50" />
-                    <div>
-                      <p className="font-medium">{t('noNotifications')}</p>
-                      <p className="text-sm mt-1">
-                        {t('notificationsWillAppear')}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              notifications.map((notification) => (
-                <TableRow key={notification.id}>
-                  <TableCell>
-                    <div className="space-y-1.5">
-                      <div className="font-medium">
-                        {notification.driver?.name || tCommon('na')}
-                      </div>
-                      {notification.driver?.vehicle_plate && (
-                        <TruckPlateBadge plate={notification.driver.vehicle_plate} />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{notification.type}</Badge>
-                  </TableCell>
-                  <TableCell className="max-w-md">
-                    <p className="text-sm truncate">{notification.message}</p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        notification.status === "DELIVERED"
-                          ? "default"
-                          : notification.status === "FAILED"
-                          ? "destructive"
-                          : "secondary"
-                      }
-                    >
-                      {notification.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {formatDistanceToNow(new Date(notification.created_at), {
-                      addSuffix: true,
-                    })}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {/* Animated Notification Feed */}
+      <NotificationFeed notifications={notifications} enableSound={true} />
     </div>
   );
 }

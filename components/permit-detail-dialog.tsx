@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,13 @@ interface PermitDetailDialogProps {
   permit: {
     id: string;
     qr_code: string;
-    status: "APPROVED" | "PENDING" | "HALTED" | "CANCELLED" | "EXPIRED" | "COMPLETED";
+    status:
+      | "APPROVED"
+      | "PENDING"
+      | "HALTED"
+      | "CANCELLED"
+      | "EXPIRED"
+      | "COMPLETED";
     priority: "EMERGENCY" | "ESSENTIAL" | "NORMAL" | "LOW";
     cargo_type: string;
     created_at: string;
@@ -45,14 +51,27 @@ interface PermitDetailDialogProps {
       vessel_name: string;
       arrival_date: string;
     };
+    organization?: {
+      id: string;
+      name: string;
+      email: string;
+    };
+    job?: {
+      id: string;
+      job_number: string;
+      customer_name: string;
+      cargo_type: string;
+      pickup_location: string;
+      destination: string;
+    };
   };
 }
 
 export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
   const [open, setOpen] = useState(false);
-  const t = useTranslations('permitDetail');
-  const tCommon = useTranslations('common');
-  const tCargo = useTranslations('cargoTypes');
+  const t = useTranslations("permitDetail");
+  const tCommon = useTranslations("common");
+  const tCargo = useTranslations("cargoTypes");
 
   // Helper to get translated cargo type
   const getCargoTypeLabel = (cargoType: string) => {
@@ -72,9 +91,9 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            {t('description', { qrCode: permit.qr_code })}
+            {t("description", { qrCode: permit.qr_code })}
           </DialogDescription>
         </DialogHeader>
 
@@ -93,47 +112,118 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Driver Information */}
           <div>
-            <h3 className="font-semibold mb-3">{t('driverInfo')}</h3>
+            <h3 className="font-semibold mb-3">{t("driverInfo")}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">{t('name')}</p>
-                <p className="font-medium">{permit.driver?.name || tCommon('na')}</p>
+                <p className="text-muted-foreground">{t("name")}</p>
+                <p className="font-medium">
+                  {permit.driver?.name || tCommon("na")}
+                </p>
               </div>
               <div>
-                <p className="text-muted-foreground">{t('phone')}</p>
-                <p className="font-medium">{permit.driver?.phone || tCommon('na')}</p>
+                <p className="text-muted-foreground">{t("phone")}</p>
+                <p className="font-medium">
+                  {permit.driver?.phone || tCommon("na")}
+                </p>
               </div>
               <div>
-                <p className="text-muted-foreground">{t('vehiclePlate')}</p>
+                <p className="text-muted-foreground">{t("vehiclePlate")}</p>
                 <div className="font-medium">
                   {permit.driver?.vehicle_plate ? (
                     <TruckPlateBadge plate={permit.driver.vehicle_plate} />
                   ) : (
-                    tCommon('na')
+                    tCommon("na")
                   )}
                 </div>
               </div>
               <div>
-                <p className="text-muted-foreground">{t('vehicleType')}</p>
+                <p className="text-muted-foreground">{t("vehicleType")}</p>
                 <p className="font-medium">
-                  {permit.driver?.vehicle_type || tCommon('na')}
+                  {permit.driver?.vehicle_type || tCommon("na")}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Organization Context */}
+          {permit.organization && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold mb-3">Organization</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Organization Name</p>
+                    <p className="font-medium">{permit.organization.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Contact Email</p>
+                    <p className="font-medium text-xs">
+                      {permit.organization.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Job Context */}
+          {permit.job && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold mb-3">Job Context</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-muted-foreground">Job Number</p>
+                      <p className="font-medium font-mono">
+                        {permit.job.job_number}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Customer</p>
+                      <p className="font-medium">{permit.job.customer_name}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-muted-foreground">Pickup Location</p>
+                      <p className="font-medium">
+                        {permit.job.pickup_location}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Destination</p>
+                      <p className="font-medium">{permit.job.destination}</p>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-900">
+                      This permit was auto-generated from job #
+                      {permit.job.job_number} created by{" "}
+                      {permit.organization?.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator />
 
           {/* Cargo & Priority */}
           <div>
-            <h3 className="font-semibold mb-3">{t('cargoDetails')}</h3>
+            <h3 className="font-semibold mb-3">{t("cargoDetails")}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">{t('cargoType')}</p>
-                <p className="font-medium">{getCargoTypeLabel(permit.cargo_type)}</p>
+                <p className="text-muted-foreground">{t("cargoType")}</p>
+                <p className="font-medium">
+                  {getCargoTypeLabel(permit.cargo_type)}
+                </p>
               </div>
               <div>
-                <p className="text-muted-foreground">{t('priorityLevel')}</p>
+                <p className="text-muted-foreground">{t("priorityLevel")}</p>
                 <PriorityBadge priority={permit.priority} />
               </div>
             </div>
@@ -143,33 +233,32 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Time Slot */}
           <div>
-            <h3 className="font-semibold mb-3">{t('scheduledSlot')}</h3>
+            <h3 className="font-semibold mb-3">{t("scheduledSlot")}</h3>
             {permit.slot ? (
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">{t('date')}</p>
+                  <p className="text-muted-foreground">{t("date")}</p>
                   <p className="font-medium">
                     {format(new Date(permit.slot.date), "MMMM d, yyyy")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">{t('time')}</p>
+                  <p className="text-muted-foreground">{t("time")}</p>
                   <p className="font-medium">
                     {permit.slot.start_time.slice(0, 5)} -{" "}
                     {permit.slot.end_time.slice(0, 5)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">{t('slotCapacity')}</p>
+                  <p className="text-muted-foreground">{t("slotCapacity")}</p>
                   <p className="font-medium">
-                    {tCommon('trucks')} {permit.slot.booked} / {permit.slot.capacity}
+                    {tCommon("trucks")} {permit.slot.booked} /{" "}
+                    {permit.slot.capacity}
                   </p>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                {t('noSlot')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("noSlot")}</p>
             )}
           </div>
 
@@ -177,18 +266,18 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
             <>
               <Separator />
               <div>
-                <h3 className="font-semibold mb-3">{t('vesselInfo')}</h3>
+                <h3 className="font-semibold mb-3">{t("vesselInfo")}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">{t('vesselName')}</p>
+                    <p className="text-muted-foreground">{t("vesselName")}</p>
                     <p className="font-medium">{permit.vessel.vessel_name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">{t('arrivalDate')}</p>
+                    <p className="text-muted-foreground">{t("arrivalDate")}</p>
                     <p className="font-medium">
                       {format(
                         new Date(permit.vessel.arrival_date),
-                        "MMMM d, yyyy"
+                        "MMMM d, yyyy",
                       )}
                     </p>
                   </div>
@@ -201,16 +290,16 @@ export function PermitDetailDialog({ permit }: PermitDetailDialogProps) {
 
           {/* Timestamps */}
           <div>
-            <h3 className="font-semibold mb-3">{t('auditTrail')}</h3>
+            <h3 className="font-semibold mb-3">{t("auditTrail")}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">{t('created')}</p>
+                <p className="text-muted-foreground">{t("created")}</p>
                 <p className="font-medium">
                   {format(new Date(permit.created_at), "MMM d, yyyy HH:mm")}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">{t('lastUpdated')}</p>
+                <p className="text-muted-foreground">{t("lastUpdated")}</p>
                 <p className="font-medium">
                   {format(new Date(permit.updated_at), "MMM d, yyyy HH:mm")}
                 </p>

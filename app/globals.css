@@ -200,3 +200,23 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+/* Presentation Mode */
+body.presentation-mode {
+  font-size: 1.2rem !important;
+}
+
+body.presentation-mode h1 { font-size: 2.75rem !important; }
+body.presentation-mode h2 { font-size: 2.25rem !important; }
+body.presentation-mode h3 { font-size: 1.75rem !important; }
+body.presentation-mode h4 { font-size: 1.5rem !important; }
+body.presentation-mode p { font-size: 1.2rem !important; }
+body.presentation-mode .text-sm { font-size: 1.1rem !important; }
+body.presentation-mode .text-xs { font-size: 1rem !important; }
+body.presentation-mode .text-lg { font-size: 1.5rem !important; }
+body.presentation-mode .text-xl { font-size: 1.75rem !important; }
+body.presentation-mode .text-2xl { font-size: 2rem !important; }
+body.presentation-mode .text-3xl { font-size: 2.5rem !important; }
+body.presentation-mode .text-4xl { font-size: 3rem !important; }
+body.presentation-mode button { font-size: 1.1rem !important; }
+body.presentation-mode td, body.presentation-mode th { font-size: 1.1rem !important; }

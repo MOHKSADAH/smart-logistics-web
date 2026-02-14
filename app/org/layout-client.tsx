@@ -46,8 +46,17 @@ function LayoutContent({
             <Link href={`/org/jobs?lang=${locale}`}>
               <Button variant="ghost">{t("jobs")}</Button>
             </Link>
+            <Link href={`/org/vessels?lang=${locale}`}>
+              <Button variant="ghost">{t("vessels")}</Button>
+            </Link>
             <Link href={`/org/drivers?lang=${locale}`}>
               <Button variant="ghost">{t("drivers")}</Button>
+            </Link>
+            <Link href={`/org/analytics?lang=${locale}`}>
+              <Button variant="ghost">{t("analytics")}</Button>
+            </Link>
+            <Link href={`/org/api-integration?lang=${locale}`}>
+              <Button variant="ghost">API Integration</Button>
             </Link>
             <Button variant="outline" size="sm" onClick={toggleLanguage}>
               {locale === "en" ? "العربية" : "English"}

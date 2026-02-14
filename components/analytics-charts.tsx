@@ -145,3 +145,117 @@ export function AnalyticsCharts({
     </div>
   );
 }
+
+// Before/After PORTA Comparison Chart
+const comparisonConfig = {
+  withoutPorta: {
+    label: "Without PORTA",
+    color: "#EF4444",
+  },
+  withPorta: {
+    label: "With PORTA",
+    color: "#22C55E",
+  },
+} satisfies ChartConfig;
+
+export function BeforeAfterComparisonChart() {
+  // Generate 24-hour comparison data
+  const comparisonData = Array.from({ length: 24 }, (_, hour) => {
+    let withoutPorta = 2;
+    let withPorta = 15;
+
+    // WITHOUT PORTA: Peak 10am-2pm
+    if (hour >= 10 && hour <= 13) {
+      withoutPorta = 171;
+    } else if (hour >= 8 && hour <= 15) {
+      withoutPorta = 15;
+    }
+
+    // WITH PORTA: Distributed across 24 hours
+    if (hour >= 0 && hour <= 5) {
+      withPorta = 20; // Night shift
+    } else if (hour >= 6 && hour <= 9) {
+      withPorta = 30; // Morning
+    } else if (hour >= 10 && hour <= 13) {
+      withPorta = 60; // Protected peak
+    } else if (hour >= 14 && hour <= 17) {
+      withPorta = 30; // Afternoon
+    } else if (hour >= 18 && hour <= 23) {
+      withPorta = 15; // Evening
+    }
+
+    return {
+      hour: `${hour}:00`,
+      hourNum: hour,
+      withoutPorta,
+      withPorta,
+    };
+  });
+
+  return (
+    <Card className="md:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>Before/After PORTA Comparison</span>
+          <span className="text-sm font-normal text-green-500">
+            65% Peak Reduction
+          </span>
+        </CardTitle>
+        <CardDescription>
+          24-hour truck distribution: WITHOUT PORTA (171 trucks/hour peak) vs WITH PORTA (60 trucks/hour max)
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={comparisonConfig} className="h-[350px]">
+          <BarChart data={comparisonData}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="hour"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              label={{ value: 'Trucks per Hour', angle: -90, position: 'insideLeft' }}
+            />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar
+              dataKey="withoutPorta"
+              fill="var(--color-withoutPorta)"
+              radius={[4, 4, 0, 0]}
+              name="Without PORTA"
+            />
+            <Bar
+              dataKey="withPorta"
+              fill="var(--color-withPorta)"
+              radius={[4, 4, 0, 0]}
+              name="With PORTA"
+            />
+          </BarChart>
+        </ChartContainer>
+
+        {/* Stats Summary */}
+        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-500">171</div>
+            <div className="text-xs text-muted-foreground">Peak WITHOUT (trucks/hr)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-500">60</div>
+            <div className="text-xs text-muted-foreground">Peak WITH (trucks/hr)</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-500">65%</div>
+            <div className="text-xs text-muted-foreground">Congestion Reduction</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

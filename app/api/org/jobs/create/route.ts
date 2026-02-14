@@ -36,43 +36,77 @@ async function getOrgSession() {
   return session;
 }
 
-// Zod schema for job creation
+// Relaxed schema for hackathon - minimal validation
 const JobCreationSchema = z.object({
-  customer_name: z.string().min(1, "Customer name is required"),
+  organization_id: z.string().uuid().optional(), // For demo mode
+  customer_name: z.string().optional().default("Test Customer"),
   container_number: z.string().optional(),
-  container_count: z.number().int().min(1).default(1),
+  container_count: z.coerce.number().int().positive().default(1),
   cargo_type: z.enum([
     "PERISHABLE",
     "MEDICAL",
     "TIME_SENSITIVE",
     "STANDARD",
     "BULK",
-  ]),
-  pickup_location: z.string().min(1, "Pickup location is required"),
-  destination: z.string().min(1, "Destination is required"),
-  preferred_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD"),
-  preferred_time: z.string().regex(/^\d{2}:\d{2}$/, "Time must be HH:MM"),
+  ]).default("STANDARD"),
+  pickup_location: z.string().optional().default("Dammam Port"),
+  destination: z.string().optional().default("Riyadh"),
+  preferred_date: z.string().optional().default(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  }),
+  preferred_time: z.string().optional().default("10:00"),
   notes: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getOrgSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Not authenticated" },
-        { status: 401 },
-      );
-    }
+    // Skip session check for hackathon demo - use default organization
+    // const session = await getOrgSession();
+    // if (!session) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Not authenticated" },
+    //     { status: 401 },
+    //   );
+    // }
 
-    // Parse and validate
+    // Parse and validate (relaxed for hackathon)
     const body = await request.json();
     const validatedData = JobCreationSchema.parse(body);
 
+    console.log("[JOB CREATE] Validated data:", validatedData);
+
     const supabase = getServerSupabaseClient();
+
+    // Get organization_id from request or use first active organization
+    let organizationId = validatedData.organization_id;
+    let organizationName = "Demo Org";
+
+    if (!organizationId) {
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("id, name")
+        .eq("is_active", true)
+        .limit(1)
+        .single();
+      organizationId = org?.id;
+      organizationName = org?.name || "Demo Org";
+    } else {
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", organizationId)
+        .single();
+      organizationName = org?.name || "Demo Org";
+    }
+
+    if (!organizationId) {
+      return NextResponse.json(
+        { success: false, error: "No organization found" },
+        { status: 400 }
+      );
+    }
 
     // Get priority from cargo type
     const { data: priorityData } = await supabase.rpc(
@@ -83,17 +117,17 @@ export async function POST(request: NextRequest) {
     );
     const priority = priorityData || "NORMAL";
 
-    // Check if organization is authorized for this priority
-    if (!session.authorized_priorities.includes(priority)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Your organization is not authorized to create ${priority} priority jobs. Contact admin to upgrade authorization.`,
-          authorized_priorities: session.authorized_priorities,
-        },
-        { status: 403 },
-      );
-    }
+    // Skip priority authorization check for hackathon
+    // if (!session.authorized_priorities.includes(priority)) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       error: `Your organization is not authorized to create ${priority} priority jobs. Contact admin to upgrade authorization.`,
+    //       authorized_priorities: session.authorized_priorities,
+    //     },
+    //     { status: 403 },
+    //   );
+    // }
 
     // Generate job number
     const jobNumber = `JOB-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${Math.floor(
@@ -106,7 +140,7 @@ export async function POST(request: NextRequest) {
     const { data: job, error: jobError } = await supabase
       .from("jobs")
       .insert({
-        organization_id: session.organization_id,
+        organization_id: organizationId,
         job_number: jobNumber,
         customer_name: validatedData.customer_name,
         container_number: validatedData.container_number,
@@ -136,7 +170,7 @@ export async function POST(request: NextRequest) {
       supabase
         .from("drivers")
         .select("id, name, phone, vehicle_plate, vehicle_type")
-        .eq("organization_id", session.organization_id)
+        .eq("organization_id", organizationId)
         .eq("is_available", true)
         .eq("is_active", true)
         .order("name")
@@ -205,7 +239,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `[JOB CREATED] ${session.organization_name} → ${job.job_number} (${priority})`,
+      `[JOB CREATED] ${organizationName} → ${job.job_number} (${priority})`,
     );
     if (vesselWarning) {
       console.log(
