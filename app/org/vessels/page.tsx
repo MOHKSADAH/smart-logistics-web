@@ -85,7 +85,7 @@ export default async function OrgVesselsPage() {
 
       {/* Vessel Schedule Table */}
       {Object.entries(vesselsByDate).length > 0 ? (
-        Object.entries(vesselsByDate).map(([date, dateVessels]) => (
+        Object.entries(vesselsByDate).map(([date, dateVessels]: [string, typeof upcomingVessels]) => (
           <Card key={date}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
