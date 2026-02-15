@@ -17,10 +17,12 @@ import {
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = "force-dynamic";
 
 export default async function OrganizationsPage() {
+  const t = await getTranslations('organizations');
   const organizations = await getAllOrganizationsActivity();
 
   // Calculate overall stats
@@ -45,9 +47,9 @@ export default async function OrganizationsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Organizations</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Monitor organization activity and performance metrics
+          {t('description')}
         </p>
       </div>
 
@@ -57,7 +59,7 @@ export default async function OrganizationsPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Organizations
+                {t('totalOrganizations')}
               </CardTitle>
               <Building2 className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -71,7 +73,7 @@ export default async function OrganizationsPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Jobs
+                {t('totalJobs')}
               </CardTitle>
               <Briefcase className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -85,7 +87,7 @@ export default async function OrganizationsPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Permits
+                {t('totalPermits')}
               </CardTitle>
               <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -99,7 +101,7 @@ export default async function OrganizationsPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Avg Completion Rate
+                {t('avgCompletionRate')}
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -116,10 +118,10 @@ export default async function OrganizationsPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
-              <CardTitle className="text-lg">Priority Abuse Alert</CardTitle>
+              <CardTitle className="text-lg">{t('priorityAbuseAlert')}</CardTitle>
             </div>
             <CardDescription>
-              {suspiciousOrgs.length} organization(s) have unusually high EMERGENCY job rates
+              {t('priorityAbuseDescription', { count: suspiciousOrgs.length })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -132,7 +134,7 @@ export default async function OrganizationsPage() {
                   <div>
                     <p className="font-medium">{org.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {org.priorityBreakdown.EMERGENCY} EMERGENCY jobs out of {org.totalJobs} total
+                      {org.priorityBreakdown.EMERGENCY} {t('emergencyJobs')} {org.totalJobs} {t('total')}
                       ({Math.round((org.priorityBreakdown.EMERGENCY / org.totalJobs) * 100)}%)
                     </p>
                   </div>
@@ -149,8 +151,8 @@ export default async function OrganizationsPage() {
       {/* Organizations Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Organizations</CardTitle>
-          <CardDescription>Organization activity overview</CardDescription>
+          <CardTitle>{t('allOrganizations')}</CardTitle>
+          <CardDescription>{t('orgActivityOverview')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -175,22 +177,22 @@ export default async function OrganizationsPage() {
                       <div className="grid grid-cols-4 gap-6">
                         {/* Jobs */}
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Jobs</p>
+                          <p className="text-xs text-muted-foreground">{t('jobs')}</p>
                           <p className="text-lg font-bold text-foreground">{org.totalJobs}</p>
-                          <p className="text-xs text-green-600">{org.completedJobs} completed</p>
+                          <p className="text-xs text-green-600">{org.completedJobs} {t('completed')}</p>
                         </div>
 
                         {/* Permits */}
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Permits</p>
+                          <p className="text-xs text-muted-foreground">{t('permits')}</p>
                           <p className="text-lg font-bold text-foreground">{org.totalPermits}</p>
                           <div className="flex gap-2 justify-center mt-1">
                             <Badge variant="default" className="text-xs">
-                              {org.approvedPermits} approved
+                              {org.approvedPermits} {t('approved')}
                             </Badge>
                             {org.haltedPermits > 0 && (
                               <Badge variant="destructive" className="text-xs">
-                                {org.haltedPermits} halted
+                                {org.haltedPermits} {t('halted')}
                               </Badge>
                             )}
                           </div>
@@ -198,7 +200,7 @@ export default async function OrganizationsPage() {
 
                         {/* Completion Rate */}
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Completion Rate</p>
+                          <p className="text-xs text-muted-foreground">{t('completionRate')}</p>
                           <p className="text-lg font-bold text-foreground">
                             {org.completionRate}%
                           </p>
@@ -206,18 +208,18 @@ export default async function OrganizationsPage() {
                             variant={org.completionRate >= 80 ? "default" : "secondary"}
                             className="text-xs mt-1"
                           >
-                            {org.completionRate >= 80 ? "Good" : "Fair"}
+                            {org.completionRate >= 80 ? t('good') : t('fair')}
                           </Badge>
                         </div>
 
                         {/* Last Activity */}
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground">Last Activity</p>
+                          <p className="text-xs text-muted-foreground">{t('lastActivity')}</p>
                           <p className="text-sm font-medium text-foreground flex items-center gap-1 justify-center">
                             <Clock className="h-3 w-3" />
                             {org.lastActivity
                               ? new Date(org.lastActivity).toLocaleDateString()
-                              : "Never"}
+                              : t('never')}
                           </p>
                         </div>
                       </div>
@@ -225,7 +227,7 @@ export default async function OrganizationsPage() {
 
                     {/* Priority Breakdown */}
                     <div className="mt-4 pt-4 border-t">
-                      <p className="text-xs text-muted-foreground mb-2">Priority Distribution</p>
+                      <p className="text-xs text-muted-foreground mb-2">{t('priorityDistribution')}</p>
                       <div className="flex gap-2">
                         {org.priorityBreakdown.EMERGENCY > 0 && (
                           <Badge variant="destructive" className="text-xs">
@@ -257,7 +259,7 @@ export default async function OrganizationsPage() {
           {organizations.length === 0 && (
             <div className="text-center py-12">
               <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No organizations found</p>
+              <p className="text-muted-foreground">{t('noOrganizations')}</p>
             </div>
           )}
         </CardContent>

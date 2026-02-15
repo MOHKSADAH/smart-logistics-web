@@ -57,7 +57,7 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
           <p className="text-muted-foreground mt-1">{t("welcomeBack")}</p>
         </div>
         <Link href={`/org/jobs/create?lang=${locale}`}>
-          <Button size="lg">
+          <Button size="lg" data-tour="create-job-button">
             <Package className="h-4 w-4 me-2" />
             {t("createNewJobCTA")}
           </Button>
@@ -193,14 +193,14 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
               <p className="text-4xl font-bold text-foreground">
                 {stats.totalDrivers}
               </p>
-              <p className="text-xs text-muted-foreground">Fleet Size</p>
+              <p className="text-xs text-muted-foreground">{t("fleetSize")}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Recent Jobs - Enhanced Card */}
-      <Card className="hover:shadow-lg transition-shadow overflow-hidden">
+      <Card className="hover:shadow-lg transition-shadow overflow-hidden" data-tour="recent-jobs">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -218,8 +218,9 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
           {stats.recentJobs.length > 0 ? (
             <div className="divide-y">
               {stats.recentJobs.map((job) => (
-                <div
+                <Link
                   key={job.id}
+                  href={`/org/jobs/${job.id}/track?lang=${locale}`}
                   className="flex justify-between items-center p-4 hover:bg-accent transition-colors group cursor-pointer"
                 >
                   <div className="flex-1 flex items-center gap-4">
@@ -251,7 +252,7 @@ function DashboardContent({ stats }: { stats: DashboardStats }) {
                     </Badge>
                     <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getOrgTranslation, type Locale } from "@/lib/org-i18n";
 import { Suspense } from "react";
+import { DemoTourTrigger } from "@/components/demo-tour-trigger";
 
 function LayoutContent({
   session,
@@ -65,6 +66,8 @@ function LayoutContent({
         </div>
       </nav>
       <main className="max-w-7xl mx-auto p-6">{children}</main>
+      {/* Demo Tour Trigger */}
+      <DemoTourTrigger />
     </div>
   );
 }

@@ -40,6 +40,7 @@ export default async function DashboardPage() {
 
       {/* Traffic Status Banner */}
       <Card
+        data-tour="traffic-status"
         className={
           stats.currentTrafficStatus === "CONGESTED"
             ? "bg-red-50 border-red-200"
@@ -80,13 +81,15 @@ export default async function DashboardPage() {
           icon={FileCheck}
           description={t("activeBookings")}
         />
-        <StatCard
-          title={t("approved")}
-          value={stats.approvedCount}
-          icon={ShieldCheck}
-          description={t("protectedCount", { count: stats.protectedCount })}
-          className="border-green-200"
-        />
+        <div data-tour="priority-protection">
+          <StatCard
+            title={t("approved")}
+            value={stats.approvedCount}
+            icon={ShieldCheck}
+            description={t("protectedCount", { count: stats.protectedCount })}
+            className="border-green-200"
+          />
+        </div>
         <StatCard
           title={t("halted")}
           value={stats.haltedCount}
@@ -144,7 +147,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Upcoming Vessels */}
-        <div>
+        <div data-tour="vessel-widget">
           <Card>
             <CardHeader>
               <CardTitle>{t("upcomingVessels")}</CardTitle>

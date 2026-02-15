@@ -1,7 +1,7 @@
 "use client";
 
-import { LayoutDashboard, Activity, FileCheck, Users, Building2, Ship, BarChart3, Bell, PlayCircle } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { LayoutDashboard, Activity, FileCheck, Users, Building2, Ship, BarChart3, Bell, PlayCircle, LogIn, Presentation } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -20,8 +20,20 @@ import {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations('nav');
   const locale = useLocale();
+
+  const startDemoTour = () => {
+    // Clear previous tour state
+    sessionStorage.removeItem("porta_demo_tour_seen");
+
+    // Add ?demo=true to current URL (preserving existing params)
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("demo", "true");
+
+    router.push(currentUrl.pathname + currentUrl.search);
+  };
 
   const navItems = [
     {
@@ -45,7 +57,7 @@ export function AppSidebar() {
       icon: Users,
     },
     {
-      title: "Organizations",
+      title: t('organizations'),
       href: `/${locale}/organizations`,
       icon: Building2,
     },
@@ -101,6 +113,33 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>{t('quickLinks')}</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={startDemoTour}
+                tooltip={t('demoTour')}
+              >
+                <Presentation />
+                <span>{t('demoTour')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === '/org-login'}
+                tooltip={t('orgPortal')}
+              >
+                <Link href="/org-login">
+                  <LogIn />
+                  <span>{t('orgPortal')}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

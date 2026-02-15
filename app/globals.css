@@ -2,6 +2,45 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Driver.js Tour Custom Styling */
+.porta-tour-popover {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+  max-width: 400px !important;
+}
+
+.porta-tour-popover .driver-popover-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+}
+
+.porta-tour-popover .driver-popover-description {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #64748b !important;
+}
+
+.porta-tour-popover .driver-popover-progress-text {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #2563eb !important;
+}
+
+/* RTL Support for Arabic */
+.porta-tour-rtl {
+  direction: rtl !important;
+}
+
+.porta-tour-rtl .driver-popover-title,
+.porta-tour-rtl .driver-popover-description {
+  text-align: right !important;
+}
+
+.porta-tour-rtl .driver-popover-footer {
+  direction: ltr !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

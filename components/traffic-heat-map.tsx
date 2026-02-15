@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Ship, Truck } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface TrafficDataPoint {
   hour: number;
@@ -29,6 +30,7 @@ export function TrafficHeatMap({
   vessels = [],
   showCurrentTime = true,
 }: TrafficHeatMapProps) {
+  const t = useTranslations("status");
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   const [hoveredHour, setHoveredHour] = useState<number | null>(null);
 
@@ -169,7 +171,7 @@ export function TrafficHeatMap({
                     {hoveredData.hour}:00 - {hoveredData.hour + 1}:00
                   </div>
                   <div className={`text-sm font-bold ${getStatusTextColor(hoveredData.status)}`}>
-                    {hoveredData.status}
+                    {t(hoveredData.status.toLowerCase())}
                   </div>
                   <div className="text-sm font-semibold text-foreground">
                     Vehicles: {hoveredData.vehicleCount}
@@ -198,15 +200,15 @@ export function TrafficHeatMap({
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 bg-emerald-500 rounded shadow-sm" />
-                <span>Normal (&lt;100)</span>
+                <span>{t("normal")} (&lt;100)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 bg-amber-500 rounded shadow-sm" />
-                <span>Moderate (100-150)</span>
+                <span>{t("moderate")} (100-150)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 bg-red-600 rounded shadow-sm" />
-                <span>Congested (&gt;150)</span>
+                <span>{t("congested")} (&gt;150)</span>
               </div>
             </div>
             {vessels.length > 0 && (

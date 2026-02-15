@@ -10,7 +10,11 @@
     "analytics": "Analytics",
     "notifications": "Notifications",
     "demoControl": "Demo Control",
-    "monitor": "Monitor"
+    "monitor": "Monitor",
+    "organizations": "Organizations",
+    "orgPortal": "Org Portal",
+    "quickLinks": "Quick Links",
+    "demoTour": "Demo Tour"
   },
   "dashboard": {
     "trafficStatus": "Current Traffic Status",
@@ -129,7 +133,20 @@
     "permitTrends": "Permit Trends",
     "trafficPatterns": "Traffic Patterns",
     "permitStatusBreakdown": "Permit Status Breakdown",
-    "priorityDistribution": "Priority Distribution"
+    "priorityDistribution": "Priority Distribution",
+    "beforeAfterTitle": "Before/After PORTA Comparison",
+    "peakReduction": "Peak Reduction",
+    "chartDescription": "24-hour truck distribution: WITHOUT PORTA ({without} trucks/hour peak) vs WITH PORTA ({with} trucks/hour max)",
+    "trucksPerHour": "Trucks per Hour",
+    "withoutPorta": "Without PORTA",
+    "withPorta": "With PORTA",
+    "peakWithout": "Peak WITHOUT (trucks/hr)",
+    "peakWith": "Peak WITH (trucks/hr)",
+    "congestionReduction": "Congestion Reduction",
+    "dailyPermitTrends": "Daily Permit Trends",
+    "permitsCreatedPerDay": "Permits created per day by priority level",
+    "congestionPatterns": "Congestion Patterns",
+    "avgVehiclesByHour": "Average vehicle count by hour of day"
   },
   "notifications": {
     "title": "Notifications",
@@ -231,5 +248,31 @@
     "BULK": "Bulk Materials",
     "MATERIALS": "Materials",
     "OTHER": "Other"
+  },
+  "organizations": {
+    "title": "Organizations",
+    "description": "Monitor organization activity and performance metrics",
+    "totalOrganizations": "Total Organizations",
+    "totalJobs": "Total Jobs",
+    "totalPermits": "Total Permits",
+    "avgCompletionRate": "Avg Completion Rate",
+    "priorityAbuseAlert": "Priority Abuse Alert",
+    "priorityAbuseDescription": "{count} organization(s) have unusually high EMERGENCY job rates",
+    "emergencyJobs": "EMERGENCY jobs out of",
+    "total": "total",
+    "allOrganizations": "All Organizations",
+    "orgActivityOverview": "Organization activity overview",
+    "jobs": "Jobs",
+    "completed": "completed",
+    "permits": "Permits",
+    "approved": "approved",
+    "halted": "halted",
+    "completionRate": "Completion Rate",
+    "good": "Good",
+    "fair": "Fair",
+    "lastActivity": "Last Activity",
+    "never": "Never",
+    "priorityDistribution": "Priority Distribution",
+    "noOrganizations": "No organizations found"
   }
 }

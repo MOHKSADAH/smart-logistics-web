@@ -10,7 +10,11 @@
     "analytics": "التحليلات",
     "notifications": "الإشعارات",
     "demoControl": "التحكم بالعرض التوضيحي",
-    "monitor": "المراقبة"
+    "monitor": "المراقبة",
+    "organizations": "المؤسسات",
+    "orgPortal": "بوابة المؤسسات",
+    "quickLinks": "روابط سريعة",
+    "demoTour": "الجولة التوضيحية"
   },
   "dashboard": {
     "trafficStatus": "حالة حركة المرور الحالية",
@@ -129,7 +133,20 @@
     "permitTrends": "اتجاهات التصاريح",
     "trafficPatterns": "أنماط حركة المرور",
     "permitStatusBreakdown": "تفصيل حالة التصاريح",
-    "priorityDistribution": "توزيع الأولويات"
+    "priorityDistribution": "توزيع الأولويات",
+    "beforeAfterTitle": "مقارنة قبل/بعد بورتا",
+    "peakReduction": "تخفيض الذروة",
+    "chartDescription": "توزيع الشاحنات على مدار 24 ساعة: بدون بورتا ({without} شاحنة/ساعة ذروة) مقابل مع بورتا ({with} شاحنة/ساعة كحد أقصى)",
+    "trucksPerHour": "شاحنة في الساعة",
+    "withoutPorta": "بدون بورتا",
+    "withPorta": "مع بورتا",
+    "peakWithout": "الذروة بدون (شاحنة/ساعة)",
+    "peakWith": "الذروة مع (شاحنة/ساعة)",
+    "congestionReduction": "تخفيض الازدحام",
+    "dailyPermitTrends": "اتجاهات التصاريح اليومية",
+    "permitsCreatedPerDay": "التصاريح المنشأة يوميًا حسب مستوى الأولوية",
+    "congestionPatterns": "أنماط الازدحام",
+    "avgVehiclesByHour": "متوسط عدد المركبات حسب ساعة اليوم"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -262,5 +279,31 @@
     "act3Title": "الفصل الثالث: التعيين الذكي (2 دقيقة)",
     "act4Title": "الفصل الرابع: حماية الأولوية (3 دقائق)",
     "act5Title": "الفصل الخامس: النتائج (1 دقيقة)"
+  },
+  "organizations": {
+    "title": "المؤسسات",
+    "description": "مراقبة نشاط المؤسسات ومقاييس الأداء",
+    "totalOrganizations": "إجمالي المؤسسات",
+    "totalJobs": "إجمالي الوظائف",
+    "totalPermits": "إجمالي التصاريح",
+    "avgCompletionRate": "متوسط معدل الإنجاز",
+    "priorityAbuseAlert": "تنبيه إساءة استخدام الأولوية",
+    "priorityAbuseDescription": "{count} مؤسسة لديها معدلات عالية بشكل غير عادي لوظائف الطوارئ",
+    "emergencyJobs": "وظائف طوارئ من أصل",
+    "total": "إجمالي",
+    "allOrganizations": "جميع المؤسسات",
+    "orgActivityOverview": "نظرة عامة على نشاط المؤسسات",
+    "jobs": "الوظائف",
+    "completed": "مكتملة",
+    "permits": "التصاريح",
+    "approved": "موافق عليها",
+    "halted": "موقوفة",
+    "completionRate": "معدل الإنجاز",
+    "good": "جيد",
+    "fair": "مقبول",
+    "lastActivity": "آخر نشاط",
+    "never": "أبدًا",
+    "priorityDistribution": "توزيع الأولويات",
+    "noOrganizations": "لم يتم العثور على مؤسسات"
   }
 }

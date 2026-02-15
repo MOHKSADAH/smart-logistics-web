@@ -14,6 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTranslations } from 'next-intl';
 
 const permitTrendsConfig = {
   EMERGENCY: {
@@ -50,6 +51,8 @@ export function AnalyticsCharts({
   permitsByDate,
   avgTrafficByHour,
 }: AnalyticsChartsProps) {
+  const t = useTranslations('analytics');
+
   // Transform permits by date for chart
   const permitTrendsData = Object.entries(permitsByDate)
     .map(([date, counts]) => ({
@@ -66,8 +69,8 @@ export function AnalyticsCharts({
       {/* Daily Permit Trends */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Permit Trends</CardTitle>
-          <CardDescription>Permits created per day by priority level</CardDescription>
+          <CardTitle>{t('dailyPermitTrends')}</CardTitle>
+          <CardDescription>{t('permitsCreatedPerDay')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={permitTrendsConfig}>
@@ -113,8 +116,8 @@ export function AnalyticsCharts({
       {/* Congestion Patterns */}
       <Card>
         <CardHeader>
-          <CardTitle>Congestion Patterns</CardTitle>
-          <CardDescription>Average vehicle count by hour of day</CardDescription>
+          <CardTitle>{t('congestionPatterns')}</CardTitle>
+          <CardDescription>{t('avgVehiclesByHour')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={trafficConfig}>
@@ -159,6 +162,8 @@ const comparisonConfig = {
 } satisfies ChartConfig;
 
 export function BeforeAfterComparisonChart() {
+  const t = useTranslations('analytics');
+
   // Generate 24-hour comparison data
   const comparisonData = Array.from({ length: 24 }, (_, hour) => {
     let withoutPorta = 2;
@@ -196,13 +201,13 @@ export function BeforeAfterComparisonChart() {
     <Card className="md:col-span-2">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Before/After PORTA Comparison</span>
+          <span>{t('beforeAfterTitle')}</span>
           <span className="text-sm font-normal text-green-500">
-            65% Peak Reduction
+            65% {t('peakReduction')}
           </span>
         </CardTitle>
         <CardDescription>
-          24-hour truck distribution: WITHOUT PORTA (171 trucks/hour peak) vs WITH PORTA (60 trucks/hour max)
+          {t('chartDescription', { without: 171, with: 60 })}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -222,20 +227,20 @@ export function BeforeAfterComparisonChart() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              label={{ value: 'Trucks per Hour', angle: -90, position: 'insideLeft' }}
+              label={{ value: t('trucksPerHour'), angle: -90, position: 'insideLeft' }}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar
               dataKey="withoutPorta"
               fill="var(--color-withoutPorta)"
               radius={[4, 4, 0, 0]}
-              name="Without PORTA"
+              name={t('withoutPorta')}
             />
             <Bar
               dataKey="withPorta"
               fill="var(--color-withPorta)"
               radius={[4, 4, 0, 0]}
-              name="With PORTA"
+              name={t('withPorta')}
             />
           </BarChart>
         </ChartContainer>
@@ -244,15 +249,15 @@ export function BeforeAfterComparisonChart() {
         <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
           <div className="text-center">
             <div className="text-2xl font-bold text-red-500">171</div>
-            <div className="text-xs text-muted-foreground">Peak WITHOUT (trucks/hr)</div>
+            <div className="text-xs text-muted-foreground">{t('peakWithout')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-500">60</div>
-            <div className="text-xs text-muted-foreground">Peak WITH (trucks/hr)</div>
+            <div className="text-xs text-muted-foreground">{t('peakWith')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-500">65%</div>
-            <div className="text-xs text-muted-foreground">Congestion Reduction</div>
+            <div className="text-xs text-muted-foreground">{t('congestionReduction')}</div>
           </div>
         </div>
       </CardContent>

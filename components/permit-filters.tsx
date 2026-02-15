@@ -8,8 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
 export function PermitFilters() {
+  const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -30,16 +32,16 @@ export function PermitFilters() {
         onValueChange={(value) => handleFilterChange("status", value)}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All statuses" />
+          <SelectValue placeholder={t("common.status")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All statuses</SelectItem>
-          <SelectItem value="APPROVED">Approved</SelectItem>
-          <SelectItem value="HALTED">Halted</SelectItem>
-          <SelectItem value="PENDING">Pending</SelectItem>
-          <SelectItem value="CANCELLED">Cancelled</SelectItem>
-          <SelectItem value="EXPIRED">Expired</SelectItem>
-          <SelectItem value="COMPLETED">Completed</SelectItem>
+          <SelectItem value="all">{t("common.status")}</SelectItem>
+          <SelectItem value="APPROVED">{t("status.approved")}</SelectItem>
+          <SelectItem value="HALTED">{t("status.halted")}</SelectItem>
+          <SelectItem value="PENDING">{t("status.pending")}</SelectItem>
+          <SelectItem value="CANCELLED">{t("status.cancelled")}</SelectItem>
+          <SelectItem value="EXPIRED">{t("status.expired")}</SelectItem>
+          <SelectItem value="COMPLETED">{t("status.completed")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -48,14 +50,14 @@ export function PermitFilters() {
         onValueChange={(value) => handleFilterChange("priority", value)}
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All priorities" />
+          <SelectValue placeholder={t("permits.priority")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All priorities</SelectItem>
-          <SelectItem value="EMERGENCY">Emergency</SelectItem>
-          <SelectItem value="ESSENTIAL">Essential</SelectItem>
-          <SelectItem value="NORMAL">Normal</SelectItem>
-          <SelectItem value="LOW">Low</SelectItem>
+          <SelectItem value="all">{t("permits.priority")}</SelectItem>
+          <SelectItem value="EMERGENCY">{t("priority.emergency")}</SelectItem>
+          <SelectItem value="ESSENTIAL">{t("priority.essential")}</SelectItem>
+          <SelectItem value="NORMAL">{t("priority.normal")}</SelectItem>
+          <SelectItem value="LOW">{t("priority.low")}</SelectItem>
         </SelectContent>
       </Select>
     </div>
