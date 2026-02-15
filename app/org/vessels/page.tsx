@@ -84,8 +84,10 @@ export default async function OrgVesselsPage() {
       )}
 
       {/* Vessel Schedule Table */}
-      {Object.entries(vesselsByDate).length > 0 ? (
-        Object.entries(vesselsByDate).map(([date, dateVessels]: [string, typeof upcomingVessels]) => (
+      {Object.keys(vesselsByDate).length > 0 ? (
+        Object.keys(vesselsByDate).map((date) => {
+          const dateVessels = vesselsByDate[date];
+          return (
           <Card key={date}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -108,7 +110,7 @@ export default async function OrgVesselsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dateVessels.map((vessel) => {
+                  {dateVessels.map((vessel: typeof upcomingVessels[number]) => {
                     const congestion = getCongestionLevel(vessel.estimated_trucks);
                     const recommendations = getRecommendedSlots(vessel.estimated_trucks);
 
@@ -155,10 +157,10 @@ export default async function OrgVesselsPage() {
                     Total estimated trucks for {format(new Date(date), "MMM d")}:
                   </span>
                   <span className="font-semibold">
-                    {dateVessels.reduce((sum, v) => sum + v.estimated_trucks, 0)} trucks
+                    {dateVessels.reduce((sum: number, v: typeof upcomingVessels[number]) => sum + v.estimated_trucks, 0)} trucks
                   </span>
                 </div>
-                {dateVessels.reduce((sum, v) => sum + v.estimated_trucks, 0) > 500 && (
+                {dateVessels.reduce((sum: number, v: typeof upcomingVessels[number]) => sum + v.estimated_trucks, 0) > 500 && (
                   <p className="text-xs text-amber-600 mt-2">
                     ⚠️ Expect heavy congestion 10am-2pm (containers ready 2-4h after vessel arrival)
                   </p>
@@ -166,7 +168,8 @@ export default async function OrgVesselsPage() {
               </div>
             </CardContent>
           </Card>
-        ))
+          );
+        })
       ) : (
         <Card>
           <CardContent className="pt-6">
