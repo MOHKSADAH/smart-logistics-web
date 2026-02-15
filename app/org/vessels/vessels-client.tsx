@@ -36,9 +36,9 @@ function VesselsContent({ vessels }: VesselsClientProps) {
 
   // Calculate congestion level based on estimated trucks
   const getCongestionLevel = (estimatedTrucks: number) => {
-    if (estimatedTrucks > 400) return { level: "HIGH", color: "text-red-500 bg-red-50 border-red-200" };
-    if (estimatedTrucks > 200) return { level: "MODERATE", color: "text-yellow-600 bg-yellow-50 border-yellow-200" };
-    return { level: "LOW", color: "text-green-600 bg-green-50 border-green-200" };
+    if (estimatedTrucks > 400) return { level: "CONGESTION_HIGH", color: "text-red-500 bg-red-50 border-red-200" };
+    if (estimatedTrucks > 200) return { level: "CONGESTION_MODERATE", color: "text-yellow-600 bg-yellow-50 border-yellow-200" };
+    return { level: "CONGESTION_LOW", color: "text-green-600 bg-green-50 border-green-200" };
   };
 
   // Get recommended time slots
